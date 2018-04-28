@@ -1,0 +1,13 @@
+README.md
+setup.py
+src/tec/__init__.py
+src/tec/ic/__init__.py
+src/tec/ic/ia/__init__.py
+src/tec/ic/ia/pc1/__init__.py
+src/tec/ic/ia/pc1/g08.py
+src/tec/ic/ia/pc1/g08_actas.py
+src/tec/ic/ia/pc1/g08_indicadores.py
+tec.egg-info/PKG-INFO
+tec.egg-info/SOURCES.txt
+tec.egg-info/dependency_links.txt
+tec.egg-info/top_level.txt
