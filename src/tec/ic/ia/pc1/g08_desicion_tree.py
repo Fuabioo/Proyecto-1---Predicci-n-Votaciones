@@ -1,10 +1,3 @@
-attr = [0,1,2,3]
-names = ["age","studies","income","buy"]
-data = [[3,"master","high","single",1],
-      [2,"hs","low","single",0],
-      [3,"master","low","married",1]]
-
-
 import collections
 import math
 import numpy
@@ -13,8 +6,8 @@ import g08
 from pptree import *
 sys.setrecursionlimit(5000)
 
-
-data = list(numpy.array(g08.generar_muestra_pais(5000)))
+error_margin = 0.15
+data = list(numpy.array(g08.generar_muestra_pais(50)))
 attr = list(range(len(data[0])))
 names = ["Canton","Población total","Superficie","Densidad Poblacional",
         "Personas en zona urbana","Hombre/Mujer", "Dependiente",
@@ -26,12 +19,11 @@ names = ["Canton","Población total","Superficie","Densidad Poblacional",
         "nacida en el extranjero","con discapacidad","No asegurado","jefatura femenina",
         "jefatura compartida","Provincia","Voto"]
 
-print(len(data[0]))
-print(len(names))
 class Tree(object):
-    def __init__(self, data, head=None):
+    def __init__(self, data, percents,head=None):
         self.children = []
         self.data = data
+        self.percents = percents
         if head:
             head.children.append(self)
             
@@ -95,16 +87,20 @@ def choose_attribute(data, attributes, target_attr, fitness):
     highest information gain (or lowest entropy).
     """
     data = data[:]
-    best_gain = 0.0
+    best_gain = float('inf')
     best_attr = None
-
+    best_percents = None
     for attr in attributes:
-        gain = fitness(data, attr, target_attr)
-        if (gain >= best_gain and attr != target_attr):
+        gain,percents = fitness(data, attr, target_attr)
+        if (gain <= best_gain and attr != target_attr):
             best_gain = gain
             best_attr = attr
-                
-    return best_attr
+            best_percents = percents
+            
+    if best_gain < error_margin:
+        return -1
+    else:
+        return best_attr,best_percents
 
 def get_examples(data, attr, value):
     """
@@ -155,7 +151,7 @@ def classify(tree, data):
 
     return classification
 
-def create_decision_tree(data, attributes, target_attr, fitness_func, names, head=None):
+def create_decision_tree(data, attributes, target_attr, fitness_func, names, head=None, val = ""):
     """
     Returns a new decision tree based on the examples given.
     """
@@ -176,7 +172,8 @@ def create_decision_tree(data, attributes, target_attr, fitness_func, names, hea
         # Choose the next best attribute to best classify our data
         best = choose_attribute(data, attributes, target_attr,
                                 fitness_func)
-        
+        if best == -1:
+            return
         # Create a new decision tree/node with the best attribute and an empty
         # dictionary object--we'll fill that up next.
         # We use the collections.defaultdict function to add a function to the
@@ -185,18 +182,19 @@ def create_decision_tree(data, attributes, target_attr, fitness_func, names, hea
         # for the target attribute whenever, we have an attribute combination
         # that wasn't seen during training.
 
-        tree = Tree(names[best],head)
+        tree = Tree(val +"-> "+ names[best[0]],best[1],head)
 
 
         # Create a new decision tree/sub-node for each of the values in the
         # best attribute field
-        for val in get_values(data, best):
+        for val in get_values(data, best[0]):
             # Create a subtree for the current value under the "best" field
+            print([val])
             subtree = create_decision_tree(
-                get_examples(data, best, val),
-                [attr for attr in attributes if attr != best],
+                get_examples(data, best[0], val),
+                [attr for attr in attributes if attr != best[0]],
                 target_attr,
-                fitness_func,names ,tree)
+                fitness_func,names ,tree, val)
 
 
     return tree
@@ -220,7 +218,7 @@ def entropy(data, target_attr):
     for freq in val_freq.values():
         data_entropy += (-freq/len(data)) * math.log(freq/len(data), 2) 
         
-    return data_entropy
+    return data_entropy,val_freq
 
 
 def gain(data, attr, target_attr):
@@ -244,12 +242,17 @@ def gain(data, attr, target_attr):
     for val in val_freq.keys():
         val_prob        = val_freq[val] / sum(val_freq.values())
         data_subset     = [record for record in data if record[attr] == val]
-        subset_entropy += val_prob * entropy(data_subset, target_attr)
+        subset_entropy += val_prob * entropy(data_subset, target_attr)[0]
 
     # Subtract the entropy of the chosen attribute from the entropy of the
     # whole data set with respect to the target attribute (and return it)
-    return (entropy(data, target_attr) - subset_entropy)
+    
+    res = (entropy(data, target_attr) )
+
+    return res
 
 
 tree = (create_decision_tree(data, attr, 33, gain, names))
 print_tree(tree ,'children' , 'data' )
+print_tree(tree ,'children' , 'percents' )
+
