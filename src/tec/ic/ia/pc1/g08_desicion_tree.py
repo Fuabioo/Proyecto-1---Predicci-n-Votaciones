@@ -3,10 +3,11 @@ import math
 import numpy
 import sys
 import g08
+import random
 from pptree import *
 sys.setrecursionlimit(5000)
 
-error_margin = 0.15
+error_margin = 0.0
 data = list(numpy.array(g08.generar_muestra_pais(50)))
 attr = list(range(len(data[0])))
 names = ["Canton","Población total","Superficie","Densidad Poblacional",
@@ -20,9 +21,10 @@ names = ["Canton","Población total","Superficie","Densidad Poblacional",
         "jefatura compartida","Provincia","Voto"]
 
 class Tree(object):
-    def __init__(self, data, percents,head=None):
+    def __init__(self, name, value, percents,head=None):
         self.children = []
-        self.data = data
+        self.name = name
+        self.value = value
         self.percents = percents
         if head:
             head.children.append(self)
@@ -147,7 +149,7 @@ def create_decision_tree(data, attributes, target_attr, fitness_func, names, hea
         # for the target attribute whenever, we have an attribute combination
         # that wasn't seen during training.
 
-        tree = Tree(val +"-> "+ names[best[0]],best[1],head)
+        tree = Tree(names[best[0]],val,best[1],head)
 
 
         # Create a new decision tree/sub-node for each of the values in the
@@ -210,7 +212,33 @@ def gain(data, attr, target_attr):
     return res
 
 
-tree = (create_decision_tree(data, attr, len(data[0])-1, gain, names))
-print_tree(tree ,'children' , 'data' )
-print_tree(tree ,'children' , 'percents' )
+def validate(tree,dataset):
+    ok = 0
+    for element in dataset:
+        if element[len(element)-1] == check(tree,element):
+            ok += 1
+    return "Accuracy "+str((ok/len(dataset)*100))+"%"
 
+
+
+def check(tree,element):
+    for child in tree.children:
+        if child.value == element[ names.index(tree.name) ]:
+            return check(child,element)
+    percents = numpy.array(list(tree.percents.values()),dtype = float)/ sum(list(tree.percents.values()))
+    return list(tree.percents.keys())[chooser(percents)]
+
+def chooser(percents):
+    val = random.random()
+    for i in range (len(percents)):
+        val -= percents[0]
+        if val < 0:
+            return i
+    return len(percents)-1
+
+tree = (create_decision_tree(data, attr, len(data[0])-1, gain, names))
+#print_tree(tree ,'children' , 'name' )
+#print_tree(tree ,'children' , 'percents' )
+
+
+print(validate(tree,data))
