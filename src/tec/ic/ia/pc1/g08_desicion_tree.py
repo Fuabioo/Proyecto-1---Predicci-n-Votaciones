@@ -7,9 +7,27 @@ data = [[3,"master","high","single",1],
 
 import collections
 import math
+import numpy
+import sys
+import g08
 from pptree import *
+sys.setrecursionlimit(5000)
 
 
+data = list(numpy.array(g08.generar_muestra_pais(5000)))
+attr = list(range(len(data[0])))
+names = ["Canton","Población total","Superficie","Densidad Poblacional",
+        "Personas en zona urbana","Hombre/Mujer", "Dependiente",
+        "Viviendas individuales", "Promedio de ocupantes","Viviendas en buen estado",
+        "viviendas hacinadas","Alfabetismo","A","B","Escolaridad promedio",
+        "25 a 49 años","50+ años","Asistencia a educaci¢n regular","Menor de 5 anhos",
+        "5 a 17 anhos","18 a 24 anhos","25 y mas anhos","Fuera de la fuerza de trabajo",
+        "Tasa neta de participacion","Hombres","Mujeres","Porcentaje de Mujeres",
+        "nacida en el extranjero","con discapacidad","No asegurado","jefatura femenina",
+        "jefatura compartida","Provincia","Voto"]
+
+print(len(data[0]))
+print(len(names))
 class Tree(object):
     def __init__(self, data, head=None):
         self.children = []
@@ -233,5 +251,5 @@ def gain(data, attr, target_attr):
     return (entropy(data, target_attr) - subset_entropy)
 
 
-
-print_tree( (create_decision_tree(data, attr, 3, gain, names)),'children' , 'data' )
+tree = (create_decision_tree(data, attr, 33, gain, names))
+print_tree(tree ,'children' , 'data' )
