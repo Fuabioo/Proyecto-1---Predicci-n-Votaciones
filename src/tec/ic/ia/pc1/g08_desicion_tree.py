@@ -181,7 +181,7 @@ def entropy(data, target_attr):
         data_entropy += (-freq/len(data)) * math.log(freq/len(data), 2) 
         
     return data_entropy,val_freq
-
+ 
 
 def gain(data, attr, target_attr):
     val_freq       = {}
