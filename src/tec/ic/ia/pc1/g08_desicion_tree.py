@@ -34,18 +34,10 @@ class Tree(object):
         return self.function
     
 def majority_value(data, target_attr):
-    """
-    Creates a list of all values in the target attribute for each record
-    in the data list object, and returns the value that appears in this list
-    the most frequently.
-    """
     data = data[:]
     return most_frequent([record[target_attr] for record in data])
 
 def most_frequent(lst):
-    """
-    Returns the item that appears most frequently in the given list.
-    """
     lst = lst[:]
     highest_freq = 0
     most_freq = None
@@ -58,10 +50,6 @@ def most_frequent(lst):
     return most_freq
 
 def unique(lst):
-    """
-    Returns a list made up of the unique values found in lst.  i.e., it
-    removes the redundant values in lst.
-    """
     lst = lst[:]
     unique_lst = []
 
@@ -74,18 +62,10 @@ def unique(lst):
     return unique_lst
 
 def get_values(data, attr):
-    """
-    Creates a list of values in the chosen attribut for each record in data,
-    prunes out all of the redundant values, and return the list.  
-    """
     data = data[:]
     return unique([record[attr] for record in data])
 
 def choose_attribute(data, attributes, target_attr, fitness):
-    """
-    Cycles through all the attributes and returns the attribute with the
-    highest information gain (or lowest entropy).
-    """
     data = data[:]
     best_gain = float('inf')
     best_attr = None
@@ -103,10 +83,6 @@ def choose_attribute(data, attributes, target_attr, fitness):
         return best_attr,best_percents
 
 def get_examples(data, attr, value):
-    """
-    Returns a list of all the records in <data> with the value of <attr>
-    matching the given value.
-    """
     data = data[:]
     rtn_lst = []
     
@@ -123,10 +99,6 @@ def get_examples(data, attr, value):
             return rtn_lst
 
 def get_classification(record, tree):
-    """
-    This function recursively traverses the decision tree and returns a
-    classification for the given record.
-    """
     # If the current node is a string, then we've reached a leaf node and
     # we can return it as our answer
     if type(tree) == type("string"):
@@ -139,10 +111,6 @@ def get_classification(record, tree):
         return get_classification(record, t)
 
 def classify(tree, data):
-    """
-    Returns a list of classifications for each of the records in the data
-    list as determined by the given decision tree.
-    """
     data = data[:]
     classification = []
     
@@ -152,9 +120,6 @@ def classify(tree, data):
     return classification
 
 def create_decision_tree(data, attributes, target_attr, fitness_func, names, head=None, val = ""):
-    """
-    Returns a new decision tree based on the examples given.
-    """
     data = data[:]
     vals = [record[target_attr] for record in data]
     default = majority_value(data, target_attr)
@@ -201,9 +166,6 @@ def create_decision_tree(data, attributes, target_attr, fitness_func, names, hea
 
 
 def entropy(data, target_attr):
-    """
-    Calculates the entropy of the given data set for the target attribute.
-    """
     val_freq     = {}
     data_entropy = 0.0
 
@@ -222,10 +184,6 @@ def entropy(data, target_attr):
 
 
 def gain(data, attr, target_attr):
-    """
-    Calculates the information gain (reduction in entropy) that would
-    result by splitting the data on the chosen attribute (attr).
-    """
     val_freq       = {}
     subset_entropy = 0.0
 
@@ -252,7 +210,7 @@ def gain(data, attr, target_attr):
     return res
 
 
-tree = (create_decision_tree(data, attr, 33, gain, names))
+tree = (create_decision_tree(data, attr, len(data[0])-1, gain, names))
 print_tree(tree ,'children' , 'data' )
 print_tree(tree ,'children' , 'percents' )
 
