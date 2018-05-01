@@ -1,18 +1,23 @@
-Proyecto Corto 1 - Simulador Votos
+Inteligencia Artificial
 ======
 
-Grupo #8:
+Grupo #8
 ------
-Fabio Mora Cubillo - 2013012801
-Sergio Moya Valerin - 2013015682
-Gabriel Venegas Castro - 2013115967
+- Fabio Mora Cubillo - 2013012801
+- Sergio Moya Valerin - 2013015682
+- Gabriel Venegas Castro - 2013115967
 
-Instalacion:
+Proyectos
+------
+- Proyecto Corto 1 - Simulador Votos
+- Proyecto 1 - Predicción Votaciones
+
+Instalacion
 ------
 - **Opcion #1 (Preferible):**
 ```bash
 python setup.py sdist
-python -m pip install dist/tec-2.0.tar.gz
+python -m pip install dist/tec-2.X.tar.gz
 ```
 - **Opcion #2:**
 ```bash
