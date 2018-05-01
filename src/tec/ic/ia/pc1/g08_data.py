@@ -62,8 +62,11 @@ def shaped_data_no_bin(n):
     X32 = encoderX32.transform(X32)
 
     X = numpy.concatenate((X0.reshape((-1, 1)), X), axis=1)
-    X = numpy.array(numpy.concatenate((X, X32.reshape((-1, 1))), axis=1), dtype = numpy.float)
+    X = numpy.concatenate((X, X32.reshape((-1, 1))), axis=1)
+
+    Y = numpy.array([g08.partidos.index(Y[i]) for i in range(len(Y))])
 
     X = numpy.concatenate((X, Y.reshape((-1, 1))), axis=1)
 
     return X
+
