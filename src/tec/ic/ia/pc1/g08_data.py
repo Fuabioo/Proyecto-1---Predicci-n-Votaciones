@@ -65,5 +65,5 @@ def shaped_data_no_bin(n):
     X = numpy.concatenate((X, X32.reshape((-1, 1))), axis=1)
 
     X = numpy.concatenate((X, Y.reshape((-1, 1))), axis=1)
-    
-    return X,dummy_y
+
+    return X
