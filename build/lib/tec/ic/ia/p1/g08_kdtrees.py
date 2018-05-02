@@ -105,7 +105,7 @@ class KDTree(object):
 def main(maxLeafSize = 4, dataQuant = 10, dataIndicators = 34, dataSet = [], destinationSet = [], k = 2):
     
     # 
-    #
+
     dataSet = dataSet if dataSet else genDataSet(dataQuant,dataIndicators)
     destinationSet = destinationSet if destinationSet else [[59.0, 288054.0, 44.61999893, 6455.715081, 1.0, 1.0, 1.0, 81903.0, 3.499981686, 0.0, 
                                             0.0, 1.0, 99.43032009, 98.47701215, 9.876764995, 10.33264708, 9.200082438, 31.12624548,
@@ -144,11 +144,10 @@ def main(maxLeafSize = 4, dataQuant = 10, dataIndicators = 34, dataSet = [], des
 
 
 
-"""
+
 
 dataX = getParsedData(8000)
 dataY = getParsedData(2000)
 
 main(k = 4, dataSet = dataX, destinationSet = dataY)
 
-"""

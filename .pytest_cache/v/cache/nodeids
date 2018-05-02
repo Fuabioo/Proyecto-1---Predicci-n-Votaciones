@@ -1,0 +1,7 @@
+[
+  "test/p1/g08_test.py::test_argparse",
+  "test/p1/g08_test.py::test_neural",
+  "test/p1/g08_test.py::test_linear",
+  "test/p1/g08_test.py::test_decision",
+  "test/p1/g08_test.py::test_knn"
+]
