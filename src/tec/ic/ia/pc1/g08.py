@@ -1,22 +1,24 @@
+"""
+Proyecto Corto 1 - Simulador de Votos
+"""
 import csv
-import pytest
-import numpy
 import math
 import random
 import argparse
-from pprint import pprint
-import os
-acts_file = "ACTASFINAL.csv"
-indicators_file = "INDICADORES.csv"
-from importlib.machinery import SourceFileLoader
 from io import StringIO
+import numpy
 
+from . import actas
+from . import indicadores
 
-testing = False
-riggedRandom = 0
+ACTAS_FINAL = "ACTASFINAL.csv"
+INDICATORS_FILE = "INDICADORES.csv"
 
-#Definición de rangos para asignación aleatoria de cantones
-cantones = [["SAN JOSE", 1, 409],
+TESTING = False
+RIGGED_RANDOM = 0
+
+# Definición de rangos para asignación aleatoria de cantones
+CANTONES = [["SAN JOSE", 1, 409],
             ["ESCAZU", 410, 490],
             ["DESAMPARADOS", 491, 779],
             ["PURISCAL", 780, 851],
@@ -98,8 +100,8 @@ cantones = [["SAN JOSE", 1, 409],
             ["MATINA", 6443, 6486],
             ["GUACIMO", 6487, 6542]]
 
-#Definición votos posibles (Incluyendo votos válidos, nulos y blancos)
-partidos = ["ACCESIBILIDAD SIN EXCLUSION",
+# Definición votos posibles (Incluyendo votos válidos, nulos y blancos)
+PARTIDOS = ["ACCESIBILIDAD SIN EXCLUSION",
             "ACCION CIUDADANA",
             "ALIANZA DEMOCRATA CRISTIANA",
             "DE LOS TRABAJADORES",
@@ -115,8 +117,8 @@ partidos = ["ACCESIBILIDAD SIN EXCLUSION",
             "VOTOS NULOS",
             "VOTOS BLANCOS"]
 
-#Definición de provincias
-provincias = ["SAN JOSE",
+# Definición de provincias
+PROVINCIAS = ["SAN JOSE",
               "ALAJUELA",
               "CARTAGO",
               "HEREDIA",
@@ -124,7 +126,7 @@ provincias = ["SAN JOSE",
               "PUNTARENAS",
               "LIMON"]
 
-votes = [1404242,
+VOTES = [1404242,
          848146,
          490903,
          433677,
@@ -132,31 +134,43 @@ votes = [1404242,
          410929,
          386862]
 
+
 def parse_args():
+    """
+    Argument parser
+    """
     parser = argparse.ArgumentParser(description='Process some data.')
-    parser.add_argument('--indicadores', nargs="+", default=['default'], help='Archivo csv. Ej: indicadores.csv')
-    parser.add_argument('--actas', nargs="+", default=['default'], help='Archivo csv. Ej: actas.csv')
+    parser.add_argument(
+        '--indicadores',
+        nargs="+",
+        default=['default'],
+        help='Archivo csv. Ej: indicadores.csv')
+    parser.add_argument(
+        '--actas',
+        nargs="+",
+        default=['default'],
+        help='Archivo csv. Ej: actas.csv')
     return parser.parse_args()
 
+
 def load_data():
+    """
+    Loads the default data and if specified loads from data file
+    """
     args = parse_args()
-    global indicadores
-    global actas_final
-    path = os.path.abspath(__file__)
-    path = path.replace('g08.py','g08_indicadores.py')
-    indicadores = SourceFileLoader("g08_indicadores.py", path).load_module()
-    path = os.path.abspath(__file__)
-    path = path.replace('g08.py','g08_actas.py')
-    actas_final = SourceFileLoader("g08_actas.py", path).load_module()
     if args.indicadores[0] != 'default' and args.actas[0] != 'default':
         indicadores.INDICADORES = open(args.indicadores[0], 'r')
-        actas_final.ACTAS_FINAL = open(args.actas[0], 'r')
+        actas.ACTAS_FINAL = open(args.actas[0], 'r')
     elif args.indicadores[0] == 'default' and args.actas[0] != 'default':
-        actas_final.ACTAS_FINAL = open(args.actas[0], 'r')
+        actas.ACTAS_FINAL = open(args.actas[0], 'r')
     elif args.actas[0] == 'default' and args.indicadores[0] != 'default':
         indicadores.INDICADORES = open(args.indicadores[0], 'r')
 
+
 def csv2mat():
+    """
+    Converts the csv to a matrix
+    """
     matrix = [[]]
     for i in range(1, 13):
         with open("ActaSesion" + str(i) + ".csv", 'r') as f:
@@ -170,10 +184,10 @@ def csv2mat():
 
     matrix = numpy.delete(matrix, slice(0, 2), axis=0)
     i = 1
-    while (i < len(matrix[0])):
-        for j in range(len(cantones)):
-            if int(cantones[j][1]) <= int(matrix[0][i]) <= int(cantones[j][2]):
-                matrix[0][i] = cantones[j][0]
+    while i < len(matrix[0]):
+        for j in range(len(CANTONES)):
+            if int(CANTONES[j][1]) <= int(matrix[0][i]) <= int(CANTONES[j][2]):
+                matrix[0][i] = CANTONES[j][0]
                 break
         if matrix[0][i].isdigit():
             matrix = numpy.delete(matrix, (i), axis=1)
@@ -196,58 +210,58 @@ def csv2mat():
     print("Procesamiento terminado")
 
 
-def round_retain_total(myOriginalList):
-    originalTotal = round(sum(myOriginalList), 0)
-    myRoundedList = numpy.array(myOriginalList).round(0)
-    newTotal = myRoundedList.sum()
-    error = originalTotal - sum(myRoundedList)
+def round_retain_total(original_list):
+    """
+    Retains the total after rounded
+    """
+    original_total = round(sum(original_list), 0)
+    rounded_list = numpy.array(original_list).round(0)
+    #new_total = rounded_list.sum()
+    error = original_total - sum(rounded_list)
     n = int(round(error))
-    myNewList = myRoundedList
-    for _, i in sorted(((myOriginalList[i] - myRoundedList[i], i)
-                        for i in range(len(myOriginalList))), reverse=n > 0)[:abs(n)]:
-        myNewList[i] += math.copysign(1, n)
-    myNewList = list(map(int, myNewList))
-    return myNewList
-
-
-'''
-    #Dosent work at all, sometimes generate 101 instead of 100
-    N = sum(xs)
-    Rs = [round(x) for x in xs]
-    K = N - sum(Rs)
-    fs = [x - round(x) for x in xs]
-    indices = [i for order, (e, i) in enumerate(reversed(sorted((e,i) for i,e in enumerate(fs)))) if order < K]
-    ys = [R + 1 if i in indices else R for i,R in enumerate(Rs)]
-    return ys
-'''
+    result = rounded_list
+    for _, i in sorted(((original_list[i] - rounded_list[i], i)
+                        for i in range(len(original_list))), reverse=n > 0)[:abs(n)]:
+        result[i] += math.copysign(1, n)
+    result = list(map(int, result))
+    return result
 
 
 def get_att(percent=50):
-    if testing:
-        percent = riggedRandom
+    """
+    Gets the attribute and uses the rigged random if testing
+    """
+    if TESTING:
+        percent = RIGGED_RANDOM
     random.seed()
     return int(random.randrange(100) < float(percent))
 
 
 def get_vote(arr):
-    val = int(arr[17])
+    """
+    Gets the vote of an array
+    """
+    #val = int(arr[17])
     choose = random.randrange(int(arr[17]))
     arr = numpy.concatenate((arr[1:14], arr[15:17]))
 
     for i in range(len(arr)):
         choose -= int(arr[i])
         if choose <= 0:
-            return partidos[i]
+            return PARTIDOS[i]
 
 
 def generar_muestra_provincia(n, nombre_provincia):
+    """
+    Generates the sample by province
+    """
     #print("Muestra: " + nombre_provincia)
-    reader = csv.reader(StringIO(actas_final.ACTAS_FINAL))
+    reader = csv.reader(StringIO(actas.ACTAS_FINAL))
     acts = list(reader)
     reader = csv.reader(StringIO(indicadores.INDICADORES))
     indicators = list(reader)
 
-    index = provincias.index(nombre_provincia) * 32
+    index = PROVINCIAS.index(nombre_provincia) * 32
     total = 0
     totals = []
     for i in range(1, len(indicators[index + 1])):
@@ -264,139 +278,184 @@ def generar_muestra_provincia(n, nombre_provincia):
         for j in range(1, len(acts[0])):
             if indicators[index][i] == acts[0][j]:
                 for k in range(totals[i - 1]):
-                    A = numpy.array(acts)
+                    arr = numpy.array(acts)
                     hombres_ratio = float(indicators[index + 5][i])
                     hombres = (hombres_ratio * 100) / (hombres_ratio + 100)
 
-                    population += [[#Demo-Geográficas
-                                    (indicators[index][i]),                         # Canton
-                                    float(indicators[index+1][i]),                  # Población total
-                                    float(indicators[index+2][i]),                  # Superficie
-                                    float(indicators[index+3][i].replace(" ","")),  # Densidad Poblacional (Estatico)
-                                    get_att(indicators[index + 4][i]),              # Personas que viven en zona urbana
-                                    get_att(hombres),                               # Hombre/Mujeres
-                                    get_att(indicators[index + 6][i]),              # Relacion de dependencia
-                                    float(indicators[index+7][i]),                  # Viviendas individuales (Estatico)
-                                    float(indicators[index+8][i]),                  # Promedio de ocupantes (Estatico)
-                                    get_att(indicators[index + 9][i]),              # Porcentaje de viviendas en buen estado
-                                    get_att(indicators[index + 10][i]),             # Porcentaje de viviendas hacinadas
-                                    #Educativas
-                                    get_att(indicators[index + 11][i]),             # Porcentaje de alfabetismo
-                                    float(indicators[index + 12][i]),
-                                    float(indicators[index + 13][i]),
-                                    float(indicators[index + 14][i]),               # Escolaridad promedio
-                                    float(indicators[index + 15][i]),               # 25 a 49 años
-                                    float(indicators[index + 16][i]),               # 50+ años
-                                    float(indicators[index + 17][i]),               # Porcentaje de asistencia a la educaci¢n regular
-                                    float(indicators[index + 18][i]),               # Menor de 5 anhos
-                                    float(indicators[index + 19][i]),               # 5 a 17 anhos
-                                    float(indicators[index + 20][i]),               # 18 a 24 anhos
-                                    float(indicators[index + 21][i]),               # 25 y m s anhos
-                                    #Económicas
-                                    get_att(indicators[index + 22][i]),             # Fuera de la fuerza de trabajo
-                                    get_att(indicators[index + 23][i]),             # Tasa neta de participacion
-                                    float(indicators[index + 24][i]),               # Hombres
-                                    float(indicators[index + 25][i]),               # Mujeres
-                                    get_att(indicators[index + 26][i]),             # Porcentaje de poblacion ocupada no asegurada
-                                    #Sociales
-                                    get_att(indicators[index + 27][i]),             # Porcentaje de poblacion nacida en el extranjero
-                                    get_att(indicators[index + 28][i]),             # Porcentaje de poblacion con discapacidad
-                                    get_att(indicators[index + 29][i]),             # Porcentaje de poblacion no asegurada
-                                    get_att(indicators[index + 30][i]),             # Porcentaje de hogares con jefatura femenina
-                                    get_att(indicators[index + 31][i]),             # Porcentaje de hogares con jefatura compartida
-                                    nombre_provincia,                               # Provincia
-                                    get_vote(A[:, j])]]                             # Voto
-                    
+                    population += [[  # Demo-Geográficas
+                        # Canton
+                        (indicators[index][i]),
+                        # Población total
+                        float(indicators[index + 1][i]),
+                        # Superficie
+                        float(indicators[index + 2][i]),
+                        # Densidad Poblacional (Estatico)
+                        float(indicators[index + 3][i].replace(" ", "")),
+                        # Personas que viven en zona urbana
+                        get_att(indicators[index + 4][i]),
+                        # Hombre/Mujeres
+                        get_att(hombres),
+                        # Relacion de dependencia
+                        get_att(indicators[index + 6][i]),
+                        # Viviendas individuales (Estatico)
+                        float(indicators[index + 7][i]),
+                        # Promedio de ocupantes (Estatico)
+                        float(indicators[index + 8][i]),
+                        # Porcentaje de viviendas en buen estado
+                        get_att(indicators[index + 9][i]),
+                        # Porcentaje de viviendas hacinadas
+                        get_att(indicators[index + 10][i]),
+                        # Educativas
+                        # Porcentaje de alfabetismo
+                        get_att(indicators[index + 11][i]),
+                        float(indicators[index + 12][i]),
+                        float(indicators[index + 13][i]),
+                        # Escolaridad promedio
+                        float(indicators[index + 14][i]),
+                        # 25 a 49 años
+                        float(indicators[index + 15][i]),
+                        # 50+ años
+                        float(indicators[index + 16][i]),
+                        # Porcentaje de asistencia a la educaci¢n
+                        # regular
+                        float(indicators[index + 17][i]),
+                        # Menor de 5 anhos
+                        float(indicators[index + 18][i]),
+                        # 5 a 17 anhos
+                        float(indicators[index + 19][i]),
+                        # 18 a 24 anhos
+                        float(indicators[index + 20][i]),
+                        # 25 y m s anhos
+                        float(indicators[index + 21][i]),
+                        # Económicas
+                        # Fuera de la fuerza de trabajo
+                        get_att(indicators[index + 22][i]),
+                        # Tasa neta de participacion
+                        get_att(indicators[index + 23][i]),
+                        # Hombres
+                        float(indicators[index + 24][i]),
+                        # Mujeres
+                        float(indicators[index + 25][i]),
+                        # Porcentaje de poblacion ocupada no
+                        # asegurada
+                        get_att(indicators[index + 26][i]),
+                        # Sociales
+                        # Porcentaje de poblacion nacida en el
+                        # extranjero
+                        get_att(indicators[index + 27][i]),
+                        # Porcentaje de poblacion con discapacidad
+                        get_att(indicators[index + 28][i]),
+                        # Porcentaje de poblacion no asegurada
+                        get_att(indicators[index + 29][i]),
+                        # Porcentaje de hogares con jefatura
+                        # femenina
+                        get_att(indicators[index + 30][i]),
+                        # Porcentaje de hogares con jefatura
+                        # compartida
+                        get_att(indicators[index + 31][i]),
+                        nombre_provincia,                               # Provincia
+                        get_vote(arr[:, j])]]                             # Voto
 
     return population
 
 
 def generar_muestra_pais(n):
+    """
+    Generates the sample of all provinces
+    """
     total = 0
     totals = []
-    for i in range(len(votes)):
-        total += float(votes[i])
-        totals += [float(votes[i])]
+    for i in range(len(VOTES)):
+        total += float(VOTES[i])
+        totals += [float(VOTES[i])]
 
     for i in range(len(totals)):
         totals[i] = totals[i] / total * n
     totals = round_retain_total(totals)
     population = []
     for i in range(len(totals)):
-        population += generar_muestra_provincia(totals[i], provincias[i])
+        population += generar_muestra_provincia(totals[i], PROVINCIAS[i])
 
     return population
 
 
 def show_percentages(population):
+    """
+    Shows the percentages for a given population
+    """
     print("Porcentajes:\n")
     percents = [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
     for i in range(len(population)):
-        for j in range(len(partidos)):
-            if population[i][len(population[0])-1] == partidos[j]:
+        for j in range(len(PARTIDOS)):
+            if population[i][len(population[0]) - 1] == PARTIDOS[j]:
                 percents[j] += 1
 
-    for j in range(len(partidos)):
-        print(partidos[j] + ":  " + str((percents[j] / len(population) * 100)))
+    for j in range(len(PARTIDOS)):
+        print(PARTIDOS[j] + ":  " + str((percents[j] / len(population) * 100)))
 
     return population
 
 
 def show_percentages_indicator(population, indicator):
+    """
+    Shows the percentages indicators
+    """
     position = get_position(indicator)
     total = 0.0
     for i in range(len(population)):
         total += population[i][position]
-        
-    print(indicator+": "+str((total/len(population))))
-    return (total/len(population))
+
+    print(indicator + ": " + str((total / len(population))))
+    return total / len(population)
+
 
 def show_percentages_indicator_partido(population, indicator, partido):
+    """
+    Shows categorized percentages for a given population
+    """
     position = get_position(indicator)
     total_indicador = 0.0
     total_partido = 0
     for i in range(len(population)):
-        if (population[i][1]==partido):
-            total_partido+=1
+        if population[i][1] == partido:
+            total_partido += 1
             total_indicador += population[i][position]
 
-
-    print(partido + " - " +indicator+": "+str((total_indicador/total_partido))+"%")
-    return total_indicador/total_partido
+    print(partido + " - " + indicator + ": " +
+          str((total_indicador / total_partido)) + "%")
+    return total_indicador / total_partido
 
 
 def get_position(indicator):
+    """
+    Obtains position for indicator
+    """
     return {"URBANIDAD": 3,
             "HOMBRES": 5,
             "ALFABETIZACION": 11,
             "ESCOLARIDAD": 14,
             "ASISTENCIA": 17,
             "PARTICIPACION": 23
-            
-        }[indicator]
+            }[indicator]
 
 
+# load_data()
+def main():
+    """
+    Main execution
+    """
+    # load_data()
 
-load_data()
+    # csv2mat()
+    # show_percentages(generar_muestra_provincia(100,"CARTAGO"))
+    # show_percentages(generar_muestra_pais(200000))
 
-if __name__ == '__main__':
-
-    
-    
-    load_data()
-    
-    #csv2mat()
-    #show_percentages(generar_muestra_provincia(100,"CARTAGO"))
-    #show_percentages(generar_muestra_pais(200000))
-
-    
-    
-    #MUESTRA
+    # MUESTRA
     muestra1 = generar_muestra_pais(10)
 
-    #PORCENTAJES
-    #show_percentages(muestra1)
-    
+    # PORCENTAJES
+    # show_percentages(muestra1)
+
     show_percentages_indicator(muestra1, "URBANIDAD")
     show_percentages_indicator(muestra1, "HOMBRES")
     show_percentages_indicator(muestra1, "ALFABETIZACION")
@@ -406,3 +465,7 @@ if __name__ == '__main__':
 
     print(muestra1[0])
     #show_percentages_indicator_partido(muestra1, "PARTICIPACION", "RESTAURACION NACIONAL")
+
+
+if __name__ == '__main__':
+    main()
