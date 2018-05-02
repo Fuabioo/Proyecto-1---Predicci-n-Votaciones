@@ -4,6 +4,7 @@ src/tec/__init__.py
 src/tec/ic/__init__.py
 src/tec/ic/ia/__init__.py
 src/tec/ic/ia/p1/__init__.py
+src/tec/ic/ia/p1/g08.py
 src/tec/ic/ia/p1/g08_data.py
 src/tec/ic/ia/p1/g08_desicion_tree.py
 src/tec/ic/ia/p1/g08_kdtrees.py

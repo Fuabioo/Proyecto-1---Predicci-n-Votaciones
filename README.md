@@ -18,13 +18,21 @@ Instalación
 
 **Dependencias**
 
-Tensorflow
+tensorflow
 ```bash
 python -m pip install tensorflow
 ```
 sklearn
 ```bash
 python -m pip install sklearn
+```
+pandas
+```bash
+python -m pip install pandas
+```
+numpy
+```bash
+python -m pip install numpy
 ```
 
 **Opcion #1 (Preferible):**
@@ -40,7 +48,7 @@ python setup.py install
 Proyecto Corto 1 - Simulador Votos
 ======
 
-Descripcion
+Descripción
 ------
 
 Consiste de un generador de un dataset de tamano **n**. Este dataset generado sera utilizado por el predictor de votaciones para predecir los resultados completos de las rodas 1 y 2 del proceso electoral del 2018, Costa Rica.
@@ -72,13 +80,15 @@ Para cargar las funciones principales del simulador se usa la siguiente linea:
 ```python
 from tec.ic.ia.pc1.g08 import generar_muestra_pais, generar_muestra_provincia
 ```
-La salida generada, en el caso de muestra de pais, tendra la siguiente forma, donde ... son 31 columnas numericas con las caracteristicas del votante como por ejemplo escolaridad.
-|Provincia|...|Canton|Voto|
-|--|--|--|--|
-|Grecia|...|Alajuela|Unidad Social Cristiana|
-|Vazquez de Coronado|...|San Jose|Voto blanco|
-|Paraiso|...|Cartago|Liberacion Nacional|
-|San Rafael|...|Heredia|Partido Accion Ciudadana|
+La salida generada, en el caso de muestra de pais, tendra la siguiente forma, donde `...` son 31 columnas numericas con las caracteristicas del votante como por ejemplo escolaridad.
+
+| Provincia | ... | Canton | Voto |
+| -- | -- | -- | -- |
+| Grecia | ... | Alajuela | Unidad Social Cristiana |
+| Vazquez de Coronado | ...| San Jose|Voto blanco |
+| Paraiso | ... | Cartago | Liberacion Nacional |
+| San Rafael | ... | Heredia | Partido Accion Ciudadana |
+
 Evidentemente el comportamiento es el mismo para generar muestra por provincia con la diferencia de que solo genera votantes en cantones de la provincia especificada.
 
 Proyecto 1 - Predicción Votaciones
