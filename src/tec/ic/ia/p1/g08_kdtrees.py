@@ -8,7 +8,7 @@ from tec.ic.ia.pc1 import g08
 
 def getParsedData(n):
 
-    data = g08_data.shaped_data_no_bin(n).tolist()
+    data = g08_data.shaped_data_no_bin2(n,1).tolist()
     data = [[float(i) for i in person] for person in data]
     return data
 
@@ -143,11 +143,8 @@ def main(dataQuant = 1000, dataSet = [], destinationSet = [], maxLeafSize = 10, 
 
 
 
-"""
 
 dataX = getParsedData(8000)
 dataY = getParsedData(2000)
 
 main(k = 4, dataSet = dataX, destinationSet = dataY)
-
-"""

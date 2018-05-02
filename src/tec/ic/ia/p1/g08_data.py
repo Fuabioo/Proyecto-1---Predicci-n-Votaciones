@@ -71,6 +71,8 @@ def shaped_data_no_bin(n,sample_type = 0):
     return X
 
 
+
+
 def shaped_data_no_bin2(n,sample_type = 1):
     dataset = numpy.array(g08.generar_muestra_pais(n,sample_type))
 
@@ -119,3 +121,4 @@ def shaped_data_no_bin2(n,sample_type = 1):
 
     return X
 
+shaped_data_no_bin2(100,sample_type = 1)
