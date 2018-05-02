@@ -50,9 +50,9 @@ def red_neuronal(args):
     """
     Ejecucion de la red neuronal
     """
-    if args.numero_capas == 1:
+    if args.numero_capas == -1:
         print("ValueError: numero-capas")
-    elif args.unidades_por_capa == 100:
+    elif args.unidades_por_capa == -1:
         print("ValueError: unidades-por-capa")
     else:
         print(
