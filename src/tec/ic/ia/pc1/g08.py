@@ -8,8 +8,8 @@ import argparse
 from io import StringIO
 import numpy
 
-import actas
-import indicadores
+from . import actas
+from . import indicadores
 
 ACTAS_FINAL = "ACTASFINAL.csv"
 INDICATORS_FILE = "INDICADORES.csv"
