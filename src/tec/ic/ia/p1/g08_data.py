@@ -74,8 +74,7 @@ def shaped_data_no_bin(n,sample_type = 0):
 
 
 def shaped_data_no_bin2(n,sample_type = 1):
-    dataset = numpy.array(g08.generar_muestra_pais(n,sample_type))
-
+    dataset = numpy.array(g08.generar_muestra_pais(n,1))
 
     X = dataset[:,1:-3].astype(float)
     X0 = dataset[:,0]
@@ -108,17 +107,33 @@ def shaped_data_no_bin2(n,sample_type = 1):
 
 
     X = numpy.concatenate((X0.reshape((-1, 1)), X), axis=1)
-
-
     X = numpy.concatenate((X, X31.reshape((-1, 1))), axis=1)
-    X = numpy.concatenate((X, X32.reshape((-1, 1))), axis=1)
 
     
+   
 
+
+
+    X_second = X
+    
+    X = numpy.concatenate((X, X32.reshape((-1, 1))), axis=1)
+
+    X_first = X
+    
+    
+    
+
+
+    
     Y = numpy.array([g08.PARTIDOS.index(Y[i]) for i in range(len(Y))])
 
     X = numpy.concatenate((X, Y.reshape((-1, 1))), axis=1)
 
-    return X
 
-shaped_data_no_bin2(100,sample_type = 1)
+    X_second = numpy.concatenate((X_second, Y.reshape((-1, 1))), axis=1)
+    
+    return X_first,X_second,X
+
+
+
+
