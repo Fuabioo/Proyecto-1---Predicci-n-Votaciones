@@ -4,8 +4,8 @@ from sklearn.preprocessing import LabelEncoder
 from keras.utils import np_utils
 
 
-def shaped_data(n):
-    dataset = numpy.array(g08.generar_muestra_pais(n))
+def shaped_data(n,sample_type = 0):
+    dataset = numpy.array(g08.generar_muestra_pais(n,sample_type))
 
 
     X = dataset[:,1:-2].astype(float)
@@ -37,8 +37,8 @@ def shaped_data(n):
     return X,dummy_y
 
 
-def shaped_data_no_bin(n):
-    dataset = numpy.array(g08.generar_muestra_pais(n))
+def shaped_data_no_bin(n,sample_type = 0):
+    dataset = numpy.array(g08.generar_muestra_pais(n,sample_type))
 
 
     X = dataset[:,1:-2].astype(float)
