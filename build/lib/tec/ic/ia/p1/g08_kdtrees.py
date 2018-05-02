@@ -8,7 +8,7 @@ from tec.ic.ia.pc1 import g08
 
 def getParsedData(n):
 
-    data = g08_data.shaped_data_no_bin(n).tolist()
+    data = g08_data.shaped_data_no_bin2(n,1).tolist()
     data = [[float(i) for i in person] for person in data]
     return data
 
@@ -139,15 +139,50 @@ def main(dataQuant = 1000, dataSet = [], destinationSet = [], maxLeafSize = 10, 
     # Define total precision
     precision = precision / len(destinationSet)
     print("Total precision: ", precision)
+    print(bestOccurrences)
     return tree, bestOccurrences, bestSDs, precision
 
+"""
+def separate(lst, parts):
+    ret = []
+    quant = len(lst)/parts
+    for i in range(parts):
+        base = int(quant*i)
+        ending = int(quant*i+quant)
+        ret.append(lst[base : ending])
+    
+    return ret
+
+def crossValidate(data, parts = 10):
+
+    error = 0
+
+    # Separate into PARTS 
+    dataParts = separate(data, parts)
+    for i in range(parts):
+
+
+        #Define dataSet training set
+        dataSet = dataParts.copy()
+
+        #Define dataTest testing set
+        dataTest = dataSet.pop(i)
+
+        #Format dataSet before processing
+        dataSet = list(itertools.chain.from_iterable(dataSet))
+
+        main()
+
+    return error
+"""
+dataX = getParsedData(8000)
+
+dataY = getParsedData(2000)
+
+main(k = 40, dataSet = dataX, destinationSet = dataY)
 
 
 """
-
-dataX = getParsedData(8000)
-dataY = getParsedData(2000)
-
-main(k = 4, dataSet = dataX, destinationSet = dataY)
-
+dataX = getParsedData(10)
+crossValidate(dataX, 2)
 """
