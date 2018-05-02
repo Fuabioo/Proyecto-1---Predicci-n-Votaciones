@@ -8,7 +8,7 @@ package_dir = {k: 'src/' + k.replace('.', '/') for k in packages}
 
 setup(
 	name = 'tec',
-	version = '2.0.3',
+	version = '2.0.4',
 	description = 'Repositorio del curso de IA',
 	url = 'https://...',
 	author = 'Fabio Mora - Sergio Moya - Gabriel Venegas',

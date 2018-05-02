@@ -1,4 +1,4 @@
-import g08
+from tec.ic.ia.pc1 import g08
 import numpy
 from sklearn.preprocessing import LabelEncoder
 from keras.utils import np_utils

@@ -2,7 +2,7 @@ import collections
 import math
 import numpy
 import sys
-import g08
+from tec.ic.ia.pc1 import g08
 import random
 from pptree import *
 sys.setrecursionlimit(5000)
