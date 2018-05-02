@@ -3,8 +3,8 @@ Proyecto #1 - Predicción Votaciones
 """
 from argparse import ArgumentParser
 
-from . import g08_redes_neuronales
-
+from tec.ic.ia.p1 import g08_redes_neuronales
+from tec.ic.ia.p1 import g08_kdtrees
 
 def get_args():
     """
@@ -50,9 +50,9 @@ def red_neuronal(args):
     """
     Ejecucion de la red neuronal
     """
-    if args.numero_capas == -1:
+    if args.numero_capas == 1:
         print("ValueError: numero-capas")
-    elif args.unidades_por_capa == -1:
+    elif args.unidades_por_capa == 100:
         print("ValueError: unidades-por-capa")
     else:
         print(
@@ -83,6 +83,7 @@ def knn(args):
         print("ValueError: k")
     else:
         print("KNN con k = ", args.k)
+        g08_kdtrees.main(dataQuant = args.poblacion, k = args.k)
 
 
 def svm(args):

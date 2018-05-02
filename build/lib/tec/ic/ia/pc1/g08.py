@@ -117,6 +117,12 @@ PARTIDOS = ["ACCESIBILIDAD SIN EXCLUSION",
             "VOTOS NULOS",
             "VOTOS BLANCOS"]
 
+
+PARTIDOS2 = ["ACCION CIUDADANA",
+            "RESTAURACION NACIONAL",
+            "VOTOS NULOS",
+            "VOTOS BLANCOS"]
+
 # Definición de provincias
 PROVINCIAS = ["SAN JOSE",
               "ALAJUELA",
@@ -172,7 +178,7 @@ def csv2mat():
     Converts the csv to a matrix
     """
     matrix = [[]]
-    for i in range(1, 13):
+    for i in range(1, 8):
         with open("ActaSesion" + str(i) + ".csv", 'r') as f:
             reader = csv.reader(f)
             act = list(reader)
@@ -251,13 +257,31 @@ def get_vote(arr):
             return PARTIDOS[i]
 
 
-def generar_muestra_provincia(n, nombre_provincia):
+def get_vote2(arr):
+    """
+    Gets the vote of an array
+    """
+    #val = int(arr[17])
+    choose = random.randrange(int(arr[6]))
+    arr = numpy.concatenate((arr[1:3], arr[4:6]))
+
+    for i in range(len(arr)):
+        choose -= int(arr[i])
+        if choose <= 0:
+            return PARTIDOS2[i]
+
+
+def generar_muestra_provincia(n, nombre_provincia, sample_type):
     """
     Generates the sample by province
     """
     #print("Muestra: " + nombre_provincia)
     reader = csv.reader(StringIO(actas.ACTAS_FINAL))
     acts = list(reader)
+
+    reader = csv.reader(StringIO(actas.ACTAS_FINAL2))
+    acts2 = list(reader)
+
     reader = csv.reader(StringIO(indicadores.INDICADORES))
     indicators = list(reader)
 
@@ -279,9 +303,15 @@ def generar_muestra_provincia(n, nombre_provincia):
             if indicators[index][i] == acts[0][j]:
                 for k in range(totals[i - 1]):
                     arr = numpy.array(acts)
+                    arr2 = numpy.array(acts2)
                     hombres_ratio = float(indicators[index + 5][i])
                     hombres = (hombres_ratio * 100) / (hombres_ratio + 100)
+                    votes = []
+                    if sample_type != 2:
+                        votes += get_vote(arr[:, j]),						# Voto 1
+                    if sample_type == 1 or sample_type == 2:
 
+                    	votes += get_vote2(arr2[:, j]),						# Voto 2
                     population += [[  # Demo-Geográficas
                         # Canton
                         (indicators[index][i]),
@@ -354,12 +384,17 @@ def generar_muestra_provincia(n, nombre_provincia):
                         # compartida
                         get_att(indicators[index + 31][i]),
                         nombre_provincia,                               # Provincia
-                        get_vote(arr[:, j])]]                             # Voto
+
+                        ] + votes]                             
 
     return population
 
-
-def generar_muestra_pais(n):
+"""
+Sample type = 0 first round
+Sample type = 1 second round using first round
+Sample type = 2 second round without first round
+"""
+def generar_muestra_pais(n,sample_type = 0):
     """
     Generates the sample of all provinces
     """
@@ -374,7 +409,7 @@ def generar_muestra_pais(n):
     totals = round_retain_total(totals)
     population = []
     for i in range(len(totals)):
-        population += generar_muestra_provincia(totals[i], PROVINCIAS[i])
+        population += generar_muestra_provincia(totals[i], PROVINCIAS[i],sample_type)
 
     return population
 
@@ -445,13 +480,12 @@ def main():
     Main execution
     """
     # load_data()
-
-    # csv2mat()
+    #csv2mat()
     # show_percentages(generar_muestra_provincia(100,"CARTAGO"))
     # show_percentages(generar_muestra_pais(200000))
 
     # MUESTRA
-    muestra1 = generar_muestra_pais(10)
+    muestra1 = generar_muestra_pais(10,2)
 
     # PORCENTAJES
     # show_percentages(muestra1)
@@ -463,7 +497,6 @@ def main():
     show_percentages_indicator(muestra1, "ASISTENCIA")
     show_percentages_indicator(muestra1, "PARTICIPACION")
 
-    print(muestra1[0])
     #show_percentages_indicator_partido(muestra1, "PARTICIPACION", "RESTAURACION NACIONAL")
 
 

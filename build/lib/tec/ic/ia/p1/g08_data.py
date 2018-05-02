@@ -4,14 +4,14 @@ from sklearn.preprocessing import LabelEncoder
 from keras.utils import np_utils
 
 
-def shaped_data(n):
-    dataset = numpy.array(g08.generar_muestra_pais(n))
+def shaped_data(n,sample_type = 0):
+    dataset = numpy.array(g08.generar_muestra_pais(n,sample_type))
 
 
-    X = dataset[:,1:32].astype(float)
+    X = dataset[:,1:-2].astype(float)
     X0 = dataset[:,0]
-    X32 = dataset[:,32]
-    Y = dataset[:,33]
+    X32 = dataset[:,-2]
+    Y = dataset[:,-1]
 
     # encode class values as integers
     encoderY = LabelEncoder()
@@ -37,14 +37,16 @@ def shaped_data(n):
     return X,dummy_y
 
 
-def shaped_data_no_bin(n):
-    dataset = numpy.array(g08.generar_muestra_pais(n))
+def shaped_data_no_bin(n,sample_type = 0):
+    dataset = numpy.array(g08.generar_muestra_pais(n,sample_type))
 
 
-    X = dataset[:,1:32].astype(float)
+    X = dataset[:,1:-2].astype(float)
     X0 = dataset[:,0]
-    X32 = dataset[:,32]
-    Y = dataset[:,33]
+    X32 = dataset[:,-2]
+    X31 = dataset[:,-3]
+    
+    Y = dataset[:,-1]
 
     # encode class values as integers
     encoderY = LabelEncoder()
@@ -61,12 +63,27 @@ def shaped_data_no_bin(n):
     encoderX32.fit(X32)
     X32 = encoderX32.transform(X32)
 
+
+    encoderX31 = LabelEncoder()
+    encoderX31.fit(X31)
+    X31 = encoderX32.transform(X31)
+
+
+
     X = numpy.concatenate((X0.reshape((-1, 1)), X), axis=1)
+
+
+    X = numpy.concatenate((X, X31.reshape((-1, 1))), axis=1)
     X = numpy.concatenate((X, X32.reshape((-1, 1))), axis=1)
+
+    
 
     Y = numpy.array([g08.PARTIDOS.index(Y[i]) for i in range(len(Y))])
 
     X = numpy.concatenate((X, Y.reshape((-1, 1))), axis=1)
 
     return X
+
+shaped_data_no_bin(100,0)
+
 
