@@ -55,6 +55,11 @@ Consiste de un generador de un dataset de tamano **n**. Este dataset generado se
 Se implementaron dos funciones principales, una para generar una muestra para todo el pais y otro para generar una muestra por provincia, generar_muestra_pais y generar_muestra_provincia respectivamente.
 Para ello se recolecto informacion del Tribunal Sumpremo de Elecciones respecto a los indicadores de canton y las actas respectivas.
 
+Implementación
+------
+
+
+
 Pruebas
 ------
 En la carpeta test se encuentran archivos de prueba para los respectivos proyectos
@@ -72,7 +77,7 @@ Argumentos
   > --indicadores <archivo.csv>
 --actas <archivo.csv>
 
-   Ambos son obviables, puede especificarse uno, el otro, los dos o ninguno
+Ambos son obviables, puede especificarse uno, el otro, los dos o ninguno
 
 Ejemplos
 ------
@@ -85,7 +90,7 @@ La salida generada, en el caso de muestra de pais, tendra la siguiente forma, do
 | Provincia | ... | Canton | Voto |
 | -- | -- | -- | -- |
 | Grecia | ... | Alajuela | Unidad Social Cristiana |
-| Vazquez de Coronado | ...| San Jose|Voto blanco |
+| Vazquez de Coronado | ...| San Jose | Voto blanco |
 | Paraiso | ... | Cartago | Liberacion Nacional |
 | San Rafael | ... | Heredia | Partido Accion Ciudadana |
 
@@ -93,3 +98,16 @@ Evidentemente el comportamiento es el mismo para generar muestra por provincia c
 
 Proyecto 1 - Predicción Votaciones
 ======
+
+Dataset
+------
+Se utiliza el simulador de votos para generar el dataset que se utilizara en la ejecucion de todos los modelos como se explica anteriormente. Se importan de la manera especificada y luego se trabaja los datos tomando en cuenta el porcentaje de poblacion que se utilizara.
+
+Redes neuronales
+------
+
+**Implementación**
+Para implementar las redes neuronales se utilizo de backend Tensorflow con Keras (API de python que corre sobre tensorflow)
+
+**Resultados**
+

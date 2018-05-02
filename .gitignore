@@ -1,0 +1,8 @@
+
+*.egg
+build/lib/tec/ic/ia/p1/g08.py
+build/lib/tec/ic/ia/p1/g08_kdtrees.py
+build/lib/tec/ic/ia/p1/g08_kdtrees.py
+build/lib/tec/ic/ia/p1/g08_redes_neuronales.py
+tec.egg-info/PKG-INFO
+tec.egg-info/SOURCES.txt
