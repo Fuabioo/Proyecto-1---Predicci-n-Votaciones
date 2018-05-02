@@ -102,21 +102,20 @@ class KDTree(object):
 
 
 
-def main(maxLeafSize = 4, dataQuant = 10, dataIndicators = 34, dataSet = [], destinationSet = [], k = 2):
+def main(dataQuant = 1000, dataSet = [], destinationSet = [], maxLeafSize = 10, k = 2):
     
     # 
     #
-    dataSet = dataSet if dataSet else genDataSet(dataQuant,dataIndicators)
-    destinationSet = destinationSet if destinationSet else [[59.0, 288054.0, 44.61999893, 6455.715081, 1.0, 1.0, 1.0, 81903.0, 3.499981686, 0.0, 
-                                            0.0, 1.0, 99.43032009, 98.47701215, 9.876764995, 10.33264708, 9.200082438, 31.12624548,
-                                            16.79944234, 88.54844476, 46.24617367, 9.526969815, 0.0, 0.0, 71.21249737, 44.16824899,
-                                            0.0, 0.0, 0.0, 0.0, 1.0, 0.0, 6.0, 'ACCION CIUDADANA']]
+    print("Generating dataset if not provided")
+    dataSet = dataSet if dataSet else getParsedData(dataQuant - (dataQuant/5))
+    destinationSet = destinationSet if destinationSet else getParsedData(dataQuant/5)
 
 
-
+    print("Creating tree")
     tree = KDTree(maxLeafSize, dataSet)
     precision = 0
 
+    print("Processing")
     for testPerson in destinationSet:
         # For each person make the search of the N nearest neighbors
         bestOccurrences, bestSDs = tree.knn(testPerson, k)

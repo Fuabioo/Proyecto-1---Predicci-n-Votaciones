@@ -3,8 +3,8 @@ Proyecto #1 - Predicción Votaciones
 """
 from argparse import ArgumentParser
 
-from . import g08_redes_neuronales
-
+from tec.ic.ia.p1 import g08_redes_neuronales
+from tec.ic.ia.p1 import g08_kdtrees
 
 def get_args():
     """
@@ -83,6 +83,7 @@ def knn(args):
         print("ValueError: k")
     else:
         print("KNN con k = ", args.k)
+        g08_kdtrees.main(dataQuant = args.poblacion, k = args.k)
 
 
 def svm(args):
