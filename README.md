@@ -30,9 +30,9 @@ pandas
 ```bash
 python -m pip install pandas
 ```
-numpy
+keras
 ```bash
-python -m pip install numpy
+python -m pip install keras
 ```
 
 **Opcion #1 (Preferible):**

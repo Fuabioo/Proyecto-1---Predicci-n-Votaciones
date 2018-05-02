@@ -24,7 +24,7 @@ def get_args():
     parser.add_argument('--red-neuronal', action='store_true')
     parser.add_argument('--numero-capas', default='-1', type=int)
     parser.add_argument('--unidades-por-capa', default='-1', type=int)
-    #parser.add_argument('--funcion-activacion', action='store_true')
+    parser.add_argument('--funcion-activacion', default='relu', type=str)
 
     parser.add_argument('--arbol', action='store_true')
     parser.add_argument('--umbral-poda', action='store_true')
@@ -56,9 +56,11 @@ def red_neuronal(args):
         print(
             "Red neuronal con",
             args.numero_capas,
-            "capas y",
+            "capas,",
             args.unidades_por_capa,
-            "unidades por capa")
+            "unidades por capa y",
+            args.funcion_activacion,
+            "como funcion de activacion")
 
 
 def arbol(args):
@@ -83,7 +85,7 @@ def svm(args):
     Ejecucion de la svm
     """
     print("SVM = ", args.svm)
-    
+
 
 def main():
     """
