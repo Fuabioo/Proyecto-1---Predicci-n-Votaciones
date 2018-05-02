@@ -44,6 +44,8 @@ def shaped_data_no_bin(n,sample_type = 0):
     X = dataset[:,1:-2].astype(float)
     X0 = dataset[:,0]
     X32 = dataset[:,-2]
+    X31 = dataset[:,-3]
+    
     Y = dataset[:,-1]
 
     # encode class values as integers
@@ -61,8 +63,20 @@ def shaped_data_no_bin(n,sample_type = 0):
     encoderX32.fit(X32)
     X32 = encoderX32.transform(X32)
 
+
+    encoderX31 = LabelEncoder()
+    encoderX31.fit(X31)
+    X31 = encoderX32.transform(X31)
+
+
+
     X = numpy.concatenate((X0.reshape((-1, 1)), X), axis=1)
+
+
+    X = numpy.concatenate((X, X31.reshape((-1, 1))), axis=1)
     X = numpy.concatenate((X, X32.reshape((-1, 1))), axis=1)
+
+    
 
     Y = numpy.array([g08.PARTIDOS.index(Y[i]) for i in range(len(Y))])
 
