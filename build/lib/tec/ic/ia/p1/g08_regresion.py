@@ -1,6 +1,6 @@
 import numpy
 import pandas
-from . import g08_data
+from tec.ic.ia.p1 import g08_data
 from sklearn.preprocessing import LabelEncoder
 from sklearn.preprocessing import OneHotEncoder
 

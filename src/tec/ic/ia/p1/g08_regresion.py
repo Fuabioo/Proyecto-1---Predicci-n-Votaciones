@@ -1,6 +1,6 @@
 import numpy
 import pandas
-from . import g08_data
+from tec.ic.ia.p1 import g08_data
 from sklearn.preprocessing import LabelEncoder
 from sklearn.preprocessing import OneHotEncoder
 
@@ -69,7 +69,7 @@ with tf.name_scope("Declaring_variables"):
 
 
 Z = tf.add(tf.matmul(X, W), b)
-prediction = tf.nn.sigmoid(Z)
+prediction = tf.nn.softmax(Z)
 
 # Calculate the cost
 cost = tf.reduce_mean(tf.nn.sigmoid_cross_entropy_with_logits(logits = Z, labels = y))
@@ -85,7 +85,7 @@ with tf.Session() as sess:
     sess.run(init)
     
     for epoch in range(training_epochs):
-        _, c = sess.run([optimizer, cost], feed_dict={X: x_train, y: y_train})
+        _, c  = sess.run([optimizer, cost], feed_dict={X: x_train, y: y_train})
         #print("Epoch:", '%04d' % (epoch+1), "cost=", "{:.9f}".format(c), \ "W=", sess.run(W), "b=", sess.run(b))
         cost_history = numpy.append(cost_history, c)
         
@@ -95,6 +95,11 @@ with tf.Session() as sess:
 
     # Calculate accuracy on the test set
     accuracy = tf.reduce_mean(tf.to_float(tf.equal(y, correct_prediction)))
+
+
+    prediction=tf.argmax(Z,1)
+    print ("predictions", prediction.eval(feed_dict={X: x_test}, session=sess))
+
 
     print ("Train Accuracy:", accuracy.eval({X: x_train, y: y_train}))
     print ("Test Accuracy:", accuracy.eval({X: x_test, y: y_test}))

@@ -9,6 +9,7 @@ src/tec/ic/ia/p1/g08_data.py
 src/tec/ic/ia/p1/g08_desicion_tree.py
 src/tec/ic/ia/p1/g08_kdtrees.py
 src/tec/ic/ia/p1/g08_print.py
+src/tec/ic/ia/p1/g08_redes_neuronales - copia.py
 src/tec/ic/ia/p1/g08_redes_neuronales.py
 src/tec/ic/ia/p1/g08_regresion.py
 src/tec/ic/ia/pc1/__init__.py

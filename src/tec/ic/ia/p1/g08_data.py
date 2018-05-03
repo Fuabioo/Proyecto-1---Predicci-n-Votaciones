@@ -2,7 +2,7 @@ from tec.ic.ia.pc1 import g08
 import numpy
 from sklearn.preprocessing import LabelEncoder
 from keras.utils import np_utils
-
+from sklearn.preprocessing import StandardScaler,MinMaxScaler
 
 def shaped_data(n,sample_type = 0):
     dataset = numpy.array(g08.generar_muestra_pais(n,sample_type))
@@ -34,17 +34,23 @@ def shaped_data(n,sample_type = 0):
     # convert integers to dummy variables (i.e. one hot encoded)
     dummy_y = np_utils.to_categorical(encoded_Y)
 
+
+
+
+
+
     return X,dummy_y
 
 
 def shaped_data2(n,sample_type = 0):
-    dataset = numpy.array(g08.generar_muestra_pais(n,sample_type))
+    dataset = numpy.array(g08.generar_muestra_pais(n,1))
 
-    print(dataset[0])
 
-    X = dataset[:,1:-2].astype(float)
+    X = dataset[:,1:-3].astype(float)
     X0 = dataset[:,0]
     X32 = dataset[:,-2]
+    X31 = dataset[:,-3]
+
     Y = dataset[:,-1]
 
     # encode class values as integers
@@ -62,17 +68,37 @@ def shaped_data2(n,sample_type = 0):
     encoderX32.fit(X32)
     X32 = encoderX32.transform(X32)
 
+
+
+
+
     X = numpy.concatenate((X0.reshape((-1, 1)), X), axis=1)
+
+
+    encoderX31 = LabelEncoder()
+    encoderX31.fit(X31)
+    X31 = encoderX31.transform(X31)
+
+
+    #X = numpy.concatenate((X, X31.reshape((-1, 1))), axis=1)
+
+    X_second = X
+
+
+    dummy_y2 = np_utils.to_categorical(X32)
     X = numpy.concatenate((X, X32.reshape((-1, 1))), axis=1)
 
     # convert integers to dummy variables (i.e. one hot encoded)
     dummy_y = np_utils.to_categorical(encoded_Y)
 
+    scaler = StandardScaler()
+    scaler.fit(X)
+    X = scaler.transform(X)
 
-
-    print(dummy_y)
+    scaler.fit(X_second)
+    X_second = scaler.transform(X_second)
     
-    return X,dummy_y
+    return [X_second,X32],[X_second,encoded_Y],[X,encoded_Y]
 
 
 
