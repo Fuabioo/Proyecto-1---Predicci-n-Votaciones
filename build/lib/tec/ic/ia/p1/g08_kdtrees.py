@@ -155,6 +155,7 @@ def separate(lst, parts):
 
 def crossValidate(data, parts = 10):
 
+<<<<<<< HEAD
     error = 0
 
     # Separate into PARTS 
@@ -167,6 +168,8 @@ def crossValidate(data, parts = 10):
 
         #Define dataTest testing set
         dataTest = dataSet.pop(i)
+=======
+>>>>>>> 33e94ed734c9c07b36ff9692e467e915bac873b0
 
         #Format dataSet before processing
         dataSet = list(itertools.chain.from_iterable(dataSet))
@@ -179,6 +182,7 @@ dataX = getParsedData(8000)
 
 dataY = getParsedData(2000)
 
+<<<<<<< HEAD
 main(k = 40, dataSet = dataX, destinationSet = dataY)
 
 
@@ -186,3 +190,6 @@ main(k = 40, dataSet = dataX, destinationSet = dataY)
 dataX = getParsedData(10)
 crossValidate(dataX, 2)
 """
+=======
+main(k = 4, dataSet = dataX, destinationSet = dataY)
+>>>>>>> 33e94ed734c9c07b36ff9692e467e915bac873b0
