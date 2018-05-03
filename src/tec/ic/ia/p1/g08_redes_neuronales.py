@@ -9,20 +9,26 @@ from sklearn.model_selection import cross_val_score
 from sklearn.model_selection import KFold
 from sklearn.preprocessing import LabelEncoder
 from sklearn.pipeline import Pipeline
+from sklearn.cross_validation import train_test_split
 
 
-# define baseline model
-# def baseline_model(y_len):
-# 	# create model
-# 	model = Sequential()
-# 	model.add(Dense(66, input_dim=33, activation='relu'))
-# 	model.add(Dense(100, input_dim=33, activation='relu'))
-# 	model.add(Dense(y_len , activation='softmax'))
-# 	# Compile model
-# 	model.compile(loss='binary_crossentropy', optimizer='adam', metrics=['accuracy'])
-# 	return model
+def baseline_model(y_len,x_len):
+    # create model
+    model = Sequential()
+    model.add(Dense(x_len*8, input_dim=x_len, init='normal', activation='relu'))
+    model.add(Dense(x_len*7, init='normal', activation='relu'))
+    model.add(Dense(x_len*6, init='normal', activation='relu'))
+    model.add(Dense(x_len*5, init='normal', activation='relu'))
+    model.add(Dense(x_len*4, init='normal', activation='relu'))
+    model.add(Dense(x_len*3, init='normal', activation='relu'))
+    model.add(Dense(x_len*2, init='normal', activation='relu'))
+    model.add(Dense(x_len, init='normal', activation='relu'))
+    model.add(Dense(y_len , activation='softmax'))
+    # Compile model
+    model.compile(loss='categorical_crossentropy', optimizer='adam', metrics=['accuracy'])
+    return model
 
-def baseline_model(y_len, hidden_layer_amount, hidden_unit_amount, activation_fun):
+def baseline_model2(y_len, hidden_layer_amount, hidden_unit_amount, activation_fun):
 
     model = Sequential()
     model.add(Dense(66, input_dim=33, activation=activation_fun))
@@ -32,7 +38,7 @@ def baseline_model(y_len, hidden_layer_amount, hidden_unit_amount, activation_fu
     model.add(Dense(y_len, activation='softmax'))
     # Compile model
     model.compile(
-        loss='binary_crossentropy',
+        loss='_crossentropy',
         optimizer='adam',
         metrics=['accuracy'])
     return model
@@ -52,19 +58,37 @@ def execute_model(hidden_layer_amount, hidden_unit_amount, activation_fun):
         build_fn=baseline_model,
         y_len=len(
             dummy_y[0]),
-        hidden_layer_amount=hidden_layer_amount,
-        hidden_unit_amount=hidden_unit_amount,
-        activation_fun=activation_fun,
+        x_len=len(X[0]),
         epochs=100,
         batch_size=100,
         verbose=2)
 
-    kfold = KFold(n_splits=10, shuffle=True, random_state=seed)
 
-    results = cross_val_score(estimator, X, dummy_y, cv=kfold)
 
-    print("Baseline: %.2f%% (%.2f%%)" %
-          (results.mean() * 100, results.std() * 100))
+
+
+    X_train, X_test, Y_train, Y_test = train_test_split(X, dummy_y, test_size=0.33, random_state=seed)
+    
+    estimator.fit(X_train, Y_train)
+
+
+
+
+    predictions = estimator.predict(X_test)
+
+    y_classes = [numpy.argmax(y, axis=None, out=None) for y in Y_test]
+
+
+    success = 0
+    for i in range(len(predictions)):
+        if predictions[i] == y_classes[i]:
+            success+=1
+    print(success/len(predictions))
+
+
+
+
+
 
 
 if __name__ == '__main__':
