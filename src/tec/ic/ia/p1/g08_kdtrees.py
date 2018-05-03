@@ -3,6 +3,8 @@ import itertools
 import math
 import random
 import numpy
+from sklearn.model_selection import KFold
+from sklearn.model_selection import train_test_split
 from tec.ic.ia.p1 import g08_data
 from tec.ic.ia.pc1 import g08
 
@@ -12,7 +14,7 @@ def getParsedData(n):
 
     return data1round, data2round, data2round1
 
-
+"""
 def genDataSet(n, m):
     dataSet = []
     dataSet = [list(random.randint(0,1) for x in range(m)) for y in range(n)]
@@ -23,10 +25,8 @@ def genDataSet(n, m):
             i[-1] = 'RN'
 
 
-    print(dataSet[0])
-
     return dataSet
-
+"""
 
 def square_distance(a, b):
     square = 0
@@ -101,8 +101,41 @@ class KDTree(object):
         return bestOccurrences, bestSDs
 
 
+def calculateTreeData(dataSet, testSet, maxLeafSize, k):
+    
+    
+    predictionList = []
 
-def main(allSets, maxLeafSize = 10, k = 2, testPercent = 20):
+    tree = 0
+    print("Generating tree")
+    tree = KDTree(maxLeafSize, dataSet)
+    
+
+    print("Processing")
+
+    precision = 0
+    for testPerson in testSet:
+        # For each person make the search of the N nearest neighbors
+        bestOccurrences, bestSDs = tree.knn(testPerson, k)
+        #sort both lists
+        #bestOccurrences = [x for _,x in sorted(zip(bestSDs, bestOccurrences))]
+        #bestSDs = sorted(bestSDs)
+
+        #Figure out which political party is the plurality > the prediction
+        partidos = [g08.PARTIDOS[int(bestOccurrences[i])] for i in range(len(bestOccurrences))]
+        predict =  max(set(bestOccurrences), key = bestOccurrences.count)
+        predictionList.append(predict)
+        if predict == testPerson[-1]:
+            precision += 1
+            
+        #print(precision/ len(testSet))
+
+
+    precision = precision / len(testSet)
+    print("Total precision: ", precision)
+    return tree, precision, predictionList
+
+def kdknn(allSets, maxLeafSize = 5, k = 2, testPercent = 20):
     
     # 
     #
@@ -113,57 +146,32 @@ def main(allSets, maxLeafSize = 10, k = 2, testPercent = 20):
     if not allSets:
         return
 
-    set1 = allSets[0]
-    set2 = allSets[1]
-    set3 = allSets[2]
-    destinationSet = set3[int(len(set3) *  (1-testPercent)) : ]
+    set1 = allSets[0][0]
+    tSet1 = allSets[0][1]
+    set2 = allSets[1][0]
+    tSet2 = allSets[1][1]
+    set3 = allSets[2][0]
+    tSet3 = allSets[2][1]
+
+    destinationSet = tSet3
 
     #Ronda 1
     print("Creating tree round 1")
-    tree1, precision1, predictions1 = calculateTreeData(set1, maxLeafSize, k, testPercent)
+    tree1, precision1, predictions1 = calculateTreeData(set1, tSet1, maxLeafSize, k)
 
     #Ronda 2 sin ronda 1
     print("Creating tree round 2 without round 1")
-    tree2, precision2, predictions2 = calculateTreeData(set2, maxLeafSize, k, testPercent)
+    tree2, precision2, predictions2 = calculateTreeData(set2, tSet2, maxLeafSize, k)
 
     #Ronda 2 con ronda 1
     print("Creating tree round 2 with round 1")
-    tree3, precision3, predictions3 = calculateTreeData(set3, maxLeafSize, k, testPercent)
+    tree3, precision3, predictions3 = calculateTreeData(set3, tSet3, maxLeafSize, k)
 
 
-    return destinationSet, predictions1, predictions2, predictions3
+    return destinationSet, [tree1, tree2, tree3] , [predictions1, predictions2, predictions3], [precision1, precision2, precision3]
 
 
-def calculateTreeData(pSet, maxLeafSize, k, testPercent):
-    
-    precision = 0
-    dataSet = pSet[0: int(len(pSet) *  (1-testPercent))]
-    testSet = pSet[int(len(pSet) *  (1-testPercent)) : ]
-    tree = KDTree(maxLeafSize, dataSet)
-    predictionList = []
 
-    print("Processing")
-    print("Test set length", len(testSet))
-    for testPerson in testSet:
-
-        # For each person make the search of the N nearest neighbors
-        bestOccurrences, bestSDs = tree.knn(testPerson, k)
-        print("Occurrences quantity: ",len(bestOccurrences))
-        #sort both lists
-        #bestOccurrences = [x for _,x in sorted(zip(bestSDs, bestOccurrences))]
-        #bestSDs = sorted(bestSDs)
-
-        #Figure out which political party is the plurality > the prediction
-        partidos = [g08.PARTIDOS[int(bestOccurrences[i])] for i in range(len(bestOccurrences))]
-        predict =  max(set(bestOccurrences), key = bestOccurrences.count)
-        predictionList.append(predict)
-        
-        if predict == testPerson[-1]:
-            precision += 1
-
-    precision = precision / len(testSet)
-    print("Total precision: ", precision)
-    return tree, precision, predictionList
 
 
 """
@@ -177,30 +185,94 @@ def separate(lst, parts):
     
     return ret"""
 
-def crossValidate(data, parts = 10):
 
+
+def processSplittedData(splitted, index):
+    # Lists with the datasets splitted
+    datasetPerRound = []
+
+    trainWith = splitted.copy()
+    testWith = trainWith.pop(index)
+    trainWith = list(itertools.chain.from_iterable(trainWith))
+
+    datasetPerRound.append(trainWith)
+    datasetPerRound.append(testWith)
+
+    return datasetPerRound
+
+
+
+def crossValidate(parts = 4, datasetSize = 2005):
+
+    # Get full datasets 1, 2, 3 (The same dataset expressed in different ways)
+    data1, data2, data3 = getParsedData(datasetSize)
+    trees1 = []
+    trees2 = []
+    trees3 = []
+    predictions1 = []
+    predictions2 = []
+    predictions3 = []
+    precisions1 = []
+    precisions2 = []
+    precisions3 = []
+
+
+    # Format data for cross validation
+    parts = int(len(data1)//parts)
+    print("Parts: ", parts)
+
+
+    # Cross validate data 1
+    data1split = [data1[i:i+parts] for i  in range(0, len(data1), parts)]
+    data2split = [data2[i:i+parts] for i  in range(0, len(data2), parts)]
+    data3split = [data3[i:i+parts] for i  in range(0, len(data3), parts)]
+    #list(itertools.chain.from_iterable(lists))
     
+    for i in range(len(data3split)):
+        
+        allDatasets = []
+        
 
-    # Separate into PARTS 
-    dataParts = separate(data, parts)
-    for i in range(parts):
+        print("TESTING WITH: ", i)
+
+        
+
+        # Round 1
+        datasetPerRound = processSplittedData(data1split, i)
+        allDatasets.append(datasetPerRound)
+
+        # Round 2 without
+        datasetPerRound = processSplittedData(data2split, i)
+        allDatasets.append(datasetPerRound)
+
+        # Round 2 with
+        datasetPerRound = processSplittedData(data3split, i)
+        allDatasets.append(datasetPerRound)
+
+        _, trees , _, precisions = kdknn(allSets = allDatasets)
+
+        trees1.append(trees[0])
+        trees2.append(trees[1])
+        trees3.append(trees[2])
+        precisions1.append(precisions[0])
+        precisions2.append(precisions[1])
+        precisions3.append(precisions[2])
 
 
-        #Define dataSet training set
-        dataSet = dataParts.copy()
 
-        #Define dataTest testing set
-        dataTest = dataSet.pop(i)
+    bestTree1, bestTree2, bestTree3 = getBestTrees(trees1, trees2, trees3, precisions1, precisions2, precisions3)
 
-        #Format dataSet before processing
-        dataSet = list(itertools.chain.from_iterable(dataSet))
+    return 
 
-        main()
-
-    return error
-
-
+def getBestTrees(trees1, trees2, trees3, precisions1, precisions2, precisions3):
+    print("Best precision 1", max(precisions1))
+    ind1 = precisions1.index(max(precisions1))
+    print("Best precision 2", max(precisions2))
+    ind2 = precisions2.index(max(precisions2))
+    print("Best precision 3", max(precisions3))
+    ind3 = precisions3.index(max(precisions3))
 
 
-data1, data2, data3 = getParsedData(1000)
-main(k = 5, allSets = (data1, data2, data3))
+    return trees1[ind1], trees2[ind2], trees3[ind3]
+
+crossValidate(parts = 10)
