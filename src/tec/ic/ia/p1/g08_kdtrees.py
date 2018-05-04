@@ -117,25 +117,16 @@ def calculateTreeData(dataSet, testSet, maxLeafSize, k):
     for testPerson in testSet:
         # For each person make the search of the N nearest neighbors
         bestOccurrences, bestSDs = tree.knn(testPerson, k)
-        #sort both lists
-        #bestOccurrences = [x for _,x in sorted(zip(bestSDs, bestOccurrences))]
-        #bestSDs = sorted(bestSDs)
-
-        #Figure out which political party is the plurality > the prediction
-        partidos = [g08.PARTIDOS[int(bestOccurrences[i])] for i in range(len(bestOccurrences))]
         predict =  max(set(bestOccurrences), key = bestOccurrences.count)
         predictionList.append(predict)
         if predict == testPerson[-1]:
             precision += 1
-            
-        #print(precision/ len(testSet))
-
 
     precision = precision / len(testSet)
     print("Total precision: ", precision)
     return tree, precision, predictionList
 
-def kdknn(allSets, maxLeafSize = 5, k = 2, testPercent = 20):
+def kdknn(allSets, maxLeafSize = 10, k = 5, testPercent = 20):
     
     # 
     #
@@ -171,22 +162,6 @@ def kdknn(allSets, maxLeafSize = 5, k = 2, testPercent = 20):
     return destinationSet, [tree1, tree2, tree3] , [predictions1, predictions2, predictions3], [precision1, precision2, precision3]
 
 
-
-
-
-"""
-def separate(lst, parts):
-    ret = []
-    quant = len(lst)/parts
-    
-        base = int(quant*i)
-        ending = int(quant*i+quant)
-        ret.append(lst[base : ending])
-    
-    return ret"""
-
-
-
 def processSplittedData(splitted, index):
     # Lists with the datasets splitted
     datasetPerRound = []
@@ -200,12 +175,16 @@ def processSplittedData(splitted, index):
 
     return datasetPerRound
 
+def switchColumns(dataSet, x, y):
+    for i in range(len(dataSet)):
+        dataSet[i][x], dataSet[i][y] = dataSet[i][y], dataSet[i][x] 
+    return dataSet
 
-
-def crossValidate(parts = 4, datasetSize = 2005):
+def crossValidate(parts = 4, datasetSize = 10026, finalPercent = 20):
 
     # Get full datasets 1, 2, 3 (The same dataset expressed in different ways)
     data1, data2, data3 = getParsedData(datasetSize)
+    print(len(data1))
     trees1 = []
     trees2 = []
     trees3 = []
@@ -216,10 +195,22 @@ def crossValidate(parts = 4, datasetSize = 2005):
     precisions2 = []
     precisions3 = []
 
+    # 0, 1, 2, 7 || 23, 29
+    #data1 = switchColumns(data1.copy(), 0, 1 )
+    data1 = switchColumns(data1.copy(), 2, 23 )
+    data1 = switchColumns(data1.copy(), 7, 29 )
+
+    #data2 = switchColumns(data2.copy(), 0, 1 )
+    data2 = switchColumns(data2.copy(), 2, 23 )
+    data2 = switchColumns(data2.copy(), 7, 29 )
+
+    #data3 = switchColumns(data3.copy(), 0, 1 )
+    data3 = switchColumns(data3.copy(), 2, 23 )
+    data3 = switchColumns(data3.copy(), 7, 29 )
+    data3 = switchColumns(data3.copy(), 0, len(data3[0])-2)
 
     # Format data for cross validation
     parts = int(len(data1)//parts)
-    print("Parts: ", parts)
 
 
     # Cross validate data 1
@@ -248,7 +239,7 @@ def crossValidate(parts = 4, datasetSize = 2005):
         # Round 2 with
         datasetPerRound = processSplittedData(data3split, i)
         allDatasets.append(datasetPerRound)
-
+        
         _, trees , _, precisions = kdknn(allSets = allDatasets)
 
         trees1.append(trees[0])
@@ -259,10 +250,33 @@ def crossValidate(parts = 4, datasetSize = 2005):
         precisions3.append(precisions[2])
 
 
-
+    finalSet1, finalSet2, finalSet3 = getParsedData(datasetSize)
     bestTree1, bestTree2, bestTree3 = getBestTrees(trees1, trees2, trees3, precisions1, precisions2, precisions3)
-
+    finalTests([bestTree1, bestTree2, bestTree3], [finalSet1, finalSet2, finalSet3])
     return 
+
+
+def finalTests(bestTrees, dataSets, k=5):
+    dataSetIndex = 0
+    for dataSet in dataSets:
+
+        
+        tree = bestTrees[dataSetIndex]
+        print("Processing tests")
+        precision = 0
+        for testPerson in dataSet:
+            bestOccurrences, bestSDs = tree.knn(testPerson, k)
+            predict =  max(set(bestOccurrences), key = bestOccurrences.count)
+            if predict == testPerson[-1]:
+                precision += 1
+                
+
+
+        precision = precision / len(dataSet)
+        dataSetIndex += 1
+        print("Total precision: ", precision)
+    
+
 
 def getBestTrees(trees1, trees2, trees3, precisions1, precisions2, precisions3):
     print("Best precision 1", max(precisions1))
@@ -275,4 +289,4 @@ def getBestTrees(trees1, trees2, trees3, precisions1, precisions2, precisions3):
 
     return trees1[ind1], trees2[ind2], trees3[ind3]
 
-crossValidate(parts = 10)
+crossValidate(parts = 5, datasetSize = 1003)
