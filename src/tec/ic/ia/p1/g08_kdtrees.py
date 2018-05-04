@@ -149,7 +149,7 @@ def calculateTreeData(dataSet, testSet, maxLeafSize, k):
     
     
     predictionList = []
-
+    isTraining = []
     tree = 0
     print("Generating tree")
     tree = KDTree(maxLeafSize, dataSet)
@@ -163,13 +163,14 @@ def calculateTreeData(dataSet, testSet, maxLeafSize, k):
         bestOccurrences, bestSDs = tree.knn(testPerson, k)
         predict =  max(set(bestOccurrences), key = bestOccurrences.count)
         predictionList.append(predict)
+        isTraining.append('True')
         if predict == testPerson[-1]:
 
             precision += 1
 
     precision = precision / len(testSet)
     print("Total precision: ", precision)
-    return tree, precision, predictionList
+    return tree, precision, predictionList, isTraining
 
 
 # Calculates the tree data for each round
@@ -190,18 +191,18 @@ def kdknn(allSets, maxLeafSize = 10, k = 3):
 
     #Ronda 1
     print("Creating tree round 1")
-    tree1, precision1, predictions1 = calculateTreeData(set1, tSet1, maxLeafSize, k)
+    tree1, precision1, predictions1, isTraining = calculateTreeData(set1, tSet1, maxLeafSize, k)
 
     #Ronda 2 sin ronda 1
     print("Creating tree round 2 without round 1")
-    tree2, precision2, predictions2 = calculateTreeData(set2, tSet2, maxLeafSize, k)
+    tree2, precision2, predictions2, _ = calculateTreeData(set2, tSet2, maxLeafSize, k)
 
     #Ronda 2 con ronda 1
     print("Creating tree round 2 with round 1")
-    tree3, precision3, predictions3 = calculateTreeData(set3, tSet3, maxLeafSize, k)
+    tree3, precision3, predictions3, _ = calculateTreeData(set3, tSet3, maxLeafSize, k)
 
 
-    return destinationSet, [tree1, tree2, tree3] , [predictions1, predictions2, predictions3], [precision1, precision2, precision3]
+    return destinationSet, [tree1, tree2, tree3] , [predictions1, predictions2, predictions3], [precision1, precision2, precision3], isTraining
 
 # Defines train/validate parts of the dataset for cross validation
 def processSplittedData(splitted, index):
@@ -239,9 +240,7 @@ def cross_validate(dataset = [], parts = 2, percent = 20, k=3):
     trainDataset, testDataset = divide_dataset(dataset, percent)
 
     data1, data2, data3 = shape_data(trainDataset)
-
     isTraining = []
-
     trees1 = []
     trees2 = []
     trees3 = []
@@ -285,14 +284,14 @@ def cross_validate(dataset = [], parts = 2, percent = 20, k=3):
         datasetPerRound = processSplittedData(data3split, i)
         allDatasets.append(datasetPerRound)
         
-        _, trees , predictions, precisions = kdknn(allSets = allDatasets, k=k)
-        isTraining.append('True')
+        _, trees , predictions, precisions, training = kdknn(allSets = allDatasets, k=k)
+        isTraining+=training
         trees1.append(trees[0])
         trees2.append(trees[1])
         trees3.append(trees[2])
-        predictions1.append(predictions[0])
-        predictions2.append(predictions[1])
-        predictions3.append(predictions[2])
+        predictions1 += predictions[0]
+        predictions2 += predictions[1]
+        predictions3 += predictions[2]
         precisions1.append(precisions[0])
         precisions2.append(precisions[1])
         precisions3.append(precisions[2])
@@ -313,10 +312,9 @@ def cross_validate(dataset = [], parts = 2, percent = 20, k=3):
     finalDict['err_train'] = sum([  sum(precisions1)/float(len(precisions1)) , sum(precisions2)/float(len(precisions2)) , sum(precisions3)/float(len(precisions3)) ]) / 3
     
     finalDict['train_set'] = isTraining
-    finalDict['res_1'] = predictions1 + finalDict['res_1']
-    finalDict['res_2'] = predictions2 + finalDict['res_2']
-    finalDict['res_3'] = predictions3 + finalDict['res_3']
-
+    finalDict['res_1'] = [g08.PARTIDOS[int(predict)] for predict in predictions1] + finalDict['res_1']
+    finalDict['res_2'] = [g08.PARTIDOS[int(predict)] for predict in predictions2] + finalDict['res_2']
+    finalDict['res_3'] = [g08.PARTIDOS[int(predict)] for predict in predictions3] + finalDict['res_3']
     return finalDict
 
 # Makes the final test with the untouched dataset
@@ -369,3 +367,6 @@ def getBestTrees(trees1, trees2, trees3, precisions1, precisions2, precisions3):
 
 
     return trees1[ind1], trees2[ind2], trees3[ind3]
+
+
+cross_validate(dataset = numpy.array(g08.generar_muestra_pais(100,1)))
