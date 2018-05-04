@@ -1,10 +1,11 @@
 """
 Proyecto #1 - Predicción Votaciones
 """
+import csv
 from argparse import ArgumentParser
 
 from tec.ic.ia.p1 import g08_redes_neuronales
-#from tec.ic.ia.p1 import g08_kdtrees
+from tec.ic.ia.p1 import g08_kdtrees
 #from tec.ic.ia.p1 import g08_desicion_tree
 #from tec.ic.ia.p1 import g08_regresion
 from tec.ic.ia.pc1 import g08
@@ -90,7 +91,16 @@ def knn(args, dataset):
         print("ValueError: k")
     else:
         print("KNN con k = ", args.k)
-        g08_kdtrees.main(dataQuant = args.poblacion, k = args.k)
+        # g08_kdtrees.main(dataQuant = args.poblacion, k = args.k)
+        result = g08_kdtrees.cross_validate(dataset=dataset, percent=args.porcentaje_pruebas, k=args.k)
+        # result = {
+        #     "res_1":["PAC", "PUSC", "RN", "PAC", "LN"],
+        #     "res_2":["PAC", "PAC", "RN", "PAC", "RN"],
+        #     "res_3":["PAC", "PAC", "PAC", "PAC", "RN"],
+        #     "train_set":[True, False, False, False, True],
+        #     "err_train": 0.9,
+        #     "err_test": 0.4}
+        get_output(dataset, result, "KNN")
 
 
 def svm(args, dataset):
@@ -100,6 +110,9 @@ def svm(args, dataset):
     print("SVM = ", args.svm)
 
 def gen_dataset(n, provincia, sample_type=1):
+    """
+    Generates the working dataset
+    """
     result = None
     if provincia != "PAIS":
         result = g08.generar_muestra_provincia(n,provincia,sample_type)
@@ -107,6 +120,72 @@ def gen_dataset(n, provincia, sample_type=1):
         result = g08.generar_muestra_pais(n,sample_type)
     return result
 
+def write_csv(data, model_name):
+    # for votante in initial_dataset:
+    #     print(votante)
+    model_name = model_name.lower()
+    filename = model_name + "_output.csv"
+    column_names = ["Cantón",
+        "Población total",
+        "Superficie (km2)",
+        "Densidad de población",
+        "Porcentaje de población urbana",
+        "Relación hombres-mujeres",
+        "Relación de dependencia demográfica",
+        "Viviendas individuales ocupadas",
+        "Promedio de ocupantes",
+        "Porcentaje de viviendas en buen estado",
+        "Porcentaje de viviendas hacinadas",
+        "Porcentaje de alfabetismo",
+        "10 a 24 años",
+        "25 y más años",
+        "Escolaridad promedio",
+        "25 a 49 años",
+        "50 o más años",
+        "Porcentaje de asistencia a la educación regular",
+        "Menor de 5 años",
+        "5 a 17 años",
+        "18 a 24 años",
+        "25 y más años",
+        "Personas fuera de la fuerza de trabajo (15 años y más)",
+        "Tasa neta de participación",
+        "Hombres",
+        "Mujeres",
+        "Porcentaje de población ocupada no asegurada",
+        "Porcentaje de población nacida en el extranjero",
+        "Porcentaje de población con discapacidad",
+        "Porcentaje de población no asegurada",
+        "Porcentaje de hogares con jefatura femenina",
+        "Porcentaje de hogares con jefatura compartida",
+        "Provincia",
+        "Voto 1ra ronda",
+        "Voto 2ra ronda",
+        "es_entrenamiento",
+        "prediccion_r1",
+        "prediccion_r2",
+        "prediccion_r2_con_r1"]
+    with open(filename, "w") as output:
+        writer = csv.writer(output, lineterminator='\n')
+        writer.writerow(column_names)
+        for line in data:
+            writer.writerow(line)
+
+
+def get_output(initial_dataset, result, model_name):
+    """
+    Generates a csv with the given result and prints
+    on the console the train and test error
+    """
+    size = len(result["res_1"])
+    for i in range(size):
+        initial_dataset[i].append(result["train_set"][i])
+        initial_dataset[i].append(result["res_1"][i])
+        initial_dataset[i].append(result["res_2"][i])
+        initial_dataset[i].append(result["res_3"][i])
+    write_csv(initial_dataset, model_name)
+    print(model_name)
+    print("   - Error de entrenamiento: ", 1 - result["err_train"])
+    print("   - Error de pruebas: ", 1 - result["err_test"])
 
 def run_prediction():
     """
@@ -114,7 +193,7 @@ def run_prediction():
     """
     # Load Arguments
     args = get_args()
-    # Generar dataset
+    # Generate dataset
     dataset = gen_dataset(args.poblacion, args.provincia)
     if args.regresion_logistica:
         regresion_logistica(args, dataset)
