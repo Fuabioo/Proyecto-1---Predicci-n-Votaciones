@@ -51,6 +51,8 @@ def non_shuffling_train_test_split(X, y, test_size=0.2):
 
 def execute_model(hidden_layer_amount, hidden_unit_amount, activation_fun, dataset, test_percentage):
 
+
+
     # fix random seed for reproducibility
     seed = 7
     numpy.random.seed(seed)
@@ -60,11 +62,11 @@ def execute_model(hidden_layer_amount, hidden_unit_amount, activation_fun, datas
     #################
 
     [X1, Y1],[X2, Y2],[X3, Y3] = g08_data.shaped_data2(dataset)
-    X_train, X_test, Y_train, Y_test = non_shuffling_train_test_split(X1, Y1)
+    X_train, X_test, Y_train, Y_test = non_shuffling_train_test_split(X1, Y1, test_percentage/100)
 
     cvmodels = []
     cvscores = []
-    n_split = len(Y_test)//2
+    n_split = max(Y_test)//2
     if n_split < 2: n_split = 2
     kfold = StratifiedKFold(n_splits=n_split, shuffle=True, random_state=seed)
     for train, test in kfold.split(X_train, Y_train):
@@ -108,15 +110,14 @@ def execute_model(hidden_layer_amount, hidden_unit_amount, activation_fun, datas
     first += train_first
 
 
-
-
+ 
 
 
     #################
     # Second Round
     #################
 
-    X_train, X_test, Y_train, Y_test = non_shuffling_train_test_split(X2, Y2, test_size=0.20)
+    X_train, X_test, Y_train, Y_test = non_shuffling_train_test_split(X2, Y2, test_percentage/100)
 
     cvmodels = []
     cvscores = []
@@ -162,11 +163,12 @@ def execute_model(hidden_layer_amount, hidden_unit_amount, activation_fun, datas
     second_acc = (110*success/len(predictions))
     second += train_first
 
+ 
     #################
     # ThirdRound
     #################
 
-    X_train, X_test, Y_train, Y_test = non_shuffling_train_test_split(X3, Y3, test_size=0.20)
+    X_train, X_test, Y_train, Y_test = non_shuffling_train_test_split(X3, Y3, test_percentage/100)
 
     cvmodels = []
     cvscores = []
@@ -210,12 +212,15 @@ def execute_model(hidden_layer_amount, hidden_unit_amount, activation_fun, datas
     third_acc = (110*success/len(predictions))
     third += train_first
 
+ 
+
     finalDict = {
             'res_1':        first,
             'res_2':        second,
             'res_3':        third,
             'err_train':    (first_acc+second_acc+third_acc)/3,
-            'err_test':     (first_acc_train+second_acc_train+third_acc_train)/3
+            'err_test':     (first_acc_train+second_acc_train+third_acc_train)/3,
+            'train_set':    [True]*len(X1)+[False]*len(Y1)
         }
     return finalDict
 

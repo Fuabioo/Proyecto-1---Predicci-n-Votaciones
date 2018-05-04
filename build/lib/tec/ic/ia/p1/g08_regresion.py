@@ -1,6 +1,7 @@
 import numpy
 import pandas
 from tec.ic.ia.p1 import g08_data
+from tec.ic.ia.pc1 import g08
 from sklearn.preprocessing import LabelEncoder
 from sklearn.preprocessing import OneHotEncoder
 
@@ -9,31 +10,35 @@ from keras.utils import np_utils
 import tensorflow as tf
 
 # fix random seed for reproducibility
-seed = 7
-numpy.random.seed(seed)
 
-
-
-learning_rate = 0.001
-num_epochs = 1500
-display_step = 300
-# load dataset
-
-[X1, Y1],[X2, Y2],[X3, Y3] = g08_data.shaped_data_regression(10000)
-
-
-
-x_train, x_test, y_train, y_test = train_test_split(X1, Y1, test_size = 0.1, random_state=0)
-
-num_features = x_train.shape[1]
-
-learning_rate = 0.01
-training_epochs = 1000
-
-tf.reset_default_graph()
 
 
 def regression():
+
+
+	seed = 7
+	numpy.random.seed(seed)
+
+
+
+	learning_rate = 0.001
+	num_epochs = 1500
+	display_step = 300
+	# load dataset
+
+	[X1, Y1],[X2, Y2],[X3, Y3] = g08_data.shaped_data_regression(10000)
+
+
+
+	x_train, x_test, y_train, y_test = train_test_split(X1, Y1, test_size = 0.1, random_state=0)
+
+	num_features = x_train.shape[1]
+
+	learning_rate = 0.01
+	training_epochs = 1000
+
+	tf.reset_default_graph()
+
 	# for visualize purpose in tensorboard we use tf.name_scope
 	with tf.name_scope("Declaring_placeholder"):    
 	    # X is placeholdre for iris features. We will feed data later on
@@ -78,6 +83,10 @@ def regression():
 
 
 	    prediction=tf.argmax(Z,1)
+	    pred = prediction.eval(feed_dict={X: x_train}, session=sess)
+	    first = [g08.PARTIDOS[int(pred[i])] for i in range(len(pred))]
+
+
 	    pred = prediction.eval(feed_dict={X: x_test}, session=sess)
 
 
@@ -87,10 +96,11 @@ def regression():
 	    for i in range(len(pred)):
 	        if pred[i] == y_classes[i]:
 	            success+=1
-	    print(110*success/len(pred))
-	    partidos1 = [g08.PARTIDOS[int(pred[i])] for i in range(len(pred))]
+	    first_acc = (110*success/len(pred))
+	    first += [g08.PARTIDOS[int(pred[i])] for i in range(len(pred))]
+	    first_acc_train = accuracy.eval({X: x_train, y: y_train})
 
-	    print(partidos1)
+
 
 
 
@@ -152,13 +162,25 @@ def regression():
 	    accuracy = tf.reduce_mean(tf.to_float(tf.equal(y, correct_prediction)))
 
 
-	    predictions=tf.argmax(Z,1)
+	    prediction=tf.argmax(Z,1)
+	    pred = prediction.eval(feed_dict={X: x_train}, session=sess)
+	    second = [g08.PARTIDOS2[int(pred[i])] for i in range(len(pred))]
+
+
+	    pred = prediction.eval(feed_dict={X: x_test}, session=sess)
+
+
+	    y_classes = [numpy.argmax(y, axis=None, out=None) for y in y_test]
+
 	    success = 0
-	    for i in range(len(predictions)):
-	        if predictions[i] == Y_test[i]:
+	    for i in range(len(pred)):
+	        if pred[i] == y_classes[i]:
 	            success+=1
-	    print(110*success/len(predictions))
-	    partidos2 = [g08.PARTIDOS2[int(predictions[i])] for i in range(len(predictions))]
+	    second_acc = (110*success/len(pred))
+	    second += [g08.PARTIDOS2[int(pred[i])] for i in range(len(pred))]
+
+	    second_acc_train = accuracy.eval({X: x_train, y: y_train})
+
 
 
 
@@ -217,16 +239,35 @@ def regression():
 	    accuracy = tf.reduce_mean(tf.to_float(tf.equal(y, correct_prediction)))
 
 
-	    predictions=tf.argmax(Z,1)
+	    prediction=tf.argmax(Z,1)
+	    pred = prediction.eval(feed_dict={X: x_train}, session=sess)
+	    third = [g08.PARTIDOS2[int(pred[i])] for i in range(len(pred))]
+
+
+	    pred = prediction.eval(feed_dict={X: x_test}, session=sess)
+
+
+	    y_classes = [numpy.argmax(y, axis=None, out=None) for y in y_test]
+
 	    success = 0
-	    for i in range(len(predictions)):
-	        if predictions[i] == Y_test[i]:
+	    for i in range(len(pred)):
+	        if pred[i] == y_classes[i]:
 	            success+=1
-	    print(110*success/len(predictions))
-	    partidos3 = [g08.PARTIDOS2[int(predictions[i])] for i in range(len(predictions))]
+	    third_acc = (110*success/len(pred))
+	    third += [g08.PARTIDOS2[int(pred[i])] for i in range(len(pred))]
+	    third_acc_train = accuracy.eval({X: x_train, y: y_train})
 
+	finalDict = {
+			'train_set':        [],
+            'res_1':        first,
+            'res_2':        second,
+            'res_3':        third,
+            'err_train':    (first_acc+second_acc+third_acc)/3,
+            'err_test':     (first_acc_train+second_acc_train+third_acc_train)/3
+            'train_set':    [True]*len(X1)+[False]*len(Y1),
+        }
+	return finalDict
 
-	    print(partidos3)
 
 
 

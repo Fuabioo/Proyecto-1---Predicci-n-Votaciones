@@ -6,7 +6,7 @@ import numpy
 from argparse import ArgumentParser
 
 from tec.ic.ia.p1 import g08_redes_neuronales
-from tec.ic.ia.p1 import g08_kdtrees
+#from tec.ic.ia.p1 import g08_kdtrees
 #from tec.ic.ia.p1 import g08_desicion_tree
 #from tec.ic.ia.p1 import g08_regresion
 from tec.ic.ia.pc1 import g08
@@ -32,7 +32,7 @@ def get_args():
 
     parser.add_argument('--red-neuronal', action='store_true')
     parser.add_argument('--numero-capas', default='1', type=int)
-    parser.add_argument('--unidades-por-capa', default='100', type=int)
+    parser.add_argument('--unidades-por-capa', default='60', type=int)
     parser.add_argument('--funcion-activacion', default='relu', type=str)
 
     parser.add_argument('--arbol', action='store_true')

@@ -83,6 +83,10 @@ def regression():
 
 
 	    prediction=tf.argmax(Z,1)
+	    pred = prediction.eval(feed_dict={X: x_train}, session=sess)
+	    first = [g08.PARTIDOS[int(pred[i])] for i in range(len(pred))]
+
+
 	    pred = prediction.eval(feed_dict={X: x_test}, session=sess)
 
 
@@ -92,7 +96,10 @@ def regression():
 	    for i in range(len(pred)):
 	        if pred[i] == y_classes[i]:
 	            success+=1
-	    partidos1 = [g08.PARTIDOS[int(pred[i])] for i in range(len(pred))]
+	    first_acc = (110*success/len(pred))
+	    first += [g08.PARTIDOS[int(pred[i])] for i in range(len(pred))]
+	    first_acc_train = accuracy.eval({X: x_train, y: y_train})
+
 
 
 
@@ -156,16 +163,23 @@ def regression():
 
 
 	    prediction=tf.argmax(Z,1)
+	    pred = prediction.eval(feed_dict={X: x_train}, session=sess)
+	    second = [g08.PARTIDOS2[int(pred[i])] for i in range(len(pred))]
+
+
 	    pred = prediction.eval(feed_dict={X: x_test}, session=sess)
 
 
 	    y_classes = [numpy.argmax(y, axis=None, out=None) for y in y_test]
 
 	    success = 0
-	    for i in range(len(pred)):w
+	    for i in range(len(pred)):
 	        if pred[i] == y_classes[i]:
 	            success+=1
-	    partidos2 = [g08.PARTIDOS2[int(pred[i])] for i in range(len(pred))]
+	    second_acc = (110*success/len(pred))
+	    second += [g08.PARTIDOS2[int(pred[i])] for i in range(len(pred))]
+
+	    second_acc_train = accuracy.eval({X: x_train, y: y_train})
 
 
 
@@ -226,6 +240,10 @@ def regression():
 
 
 	    prediction=tf.argmax(Z,1)
+	    pred = prediction.eval(feed_dict={X: x_train}, session=sess)
+	    third = [g08.PARTIDOS2[int(pred[i])] for i in range(len(pred))]
+
+
 	    pred = prediction.eval(feed_dict={X: x_test}, session=sess)
 
 
@@ -235,13 +253,21 @@ def regression():
 	    for i in range(len(pred)):
 	        if pred[i] == y_classes[i]:
 	            success+=1
-	    partidos3 = [g08.PARTIDOS2w[int(pred[i])] for i in range(len(pred))]
+	    third_acc = (110*success/len(pred))
+	    third += [g08.PARTIDOS2[int(pred[i])] for i in range(len(pred))]
+	    third_acc_train = accuracy.eval({X: x_train, y: y_train})
 
+	finalDict = {
+			'train_set':        [],
+            'res_1':        first,
+            'res_2':        second,
+            'res_3':        third,
+            'err_train':    (first_acc+second_acc+third_acc)/3,
+            'err_test':     (first_acc_train+second_acc_train+third_acc_train)/3
+            'train_set':    [True]*len(X1)+[False]*len(Y1),
+        }
+	return finalDict
 
-	    result = X3
-	    
-
-	    return X3,Y3,partidos1,partidos2,partidos3
 
 
 

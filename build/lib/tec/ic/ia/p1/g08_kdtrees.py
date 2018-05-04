@@ -3,16 +3,25 @@ import itertools
 import math
 import random
 import numpy
+from sklearn.model_selection import KFold
+from sklearn.model_selection import train_test_split
+
+import numpy
+from sklearn.preprocessing import LabelEncoder
+from keras.utils import np_utils
+from sklearn.preprocessing import StandardScaler,MinMaxScaler
+
 from tec.ic.ia.p1 import g08_data
 from tec.ic.ia.pc1 import g08
 
+
+
+"""
 def getParsedData(n):
-
-    data = g08_data.shaped_data_no_bin2(n,1).tolist()
-    data = [[float(i) for i in person] for person in data]
-    return data
-
-
+    data1round, data2round, data2round1 = g08_data.shaped_data_kdtrees(n)
+    return data1round, data2round, data2round1
+"""
+"""
 def genDataSet(n, m):
     dataSet = []
     dataSet = [list(random.randint(0,1) for x in range(m)) for y in range(n)]
@@ -23,9 +32,44 @@ def genDataSet(n, m):
             i[-1] = 'RN'
 
 
-    print(dataSet[0])
-
     return dataSet
+"""
+
+# Formats the dataset to be used on each round 
+def shape_data(dataset):
+    X = dataset[:,1:-3].astype(float)
+    X0 = dataset[:,0]
+    X32 = dataset[:,-2]
+    X31 = dataset[:,-3]
+    Y = dataset[:,-1]
+    # encode class values as integers
+    encoderY = LabelEncoder()
+    encoderY.fit(Y)
+    encoded_Y = encoderY.transform(Y)
+    # encode class values as integers
+    encoderX0 = LabelEncoder()
+    encoderX0.fit(X0)
+    X0 = encoderX0.transform(X0)
+    # encode class values as integers
+    encoderX32 = LabelEncoder()
+    encoderX32.fit(X32)
+    X32 = encoderX32.transform(X32)
+    encoderX31 = LabelEncoder()
+    encoderX31.fit(X31)
+    X31 = encoderX31.transform(X31)
+    scaler = MinMaxScaler()
+    scaler.fit(X)
+    X = scaler.transform(X)
+    X = numpy.concatenate((X0.reshape((-1, 1)), X), axis=1)
+    X = numpy.concatenate((X, X31.reshape((-1, 1))), axis=1)
+    X_second = X
+    X = numpy.concatenate((X, X32.reshape((-1, 1))), axis=1)
+    X_first = X
+    Y = numpy.array([g08.PARTIDOS.index(Y[i]) for i in range(len(Y))])
+    X = numpy.concatenate((X, Y.reshape((-1, 1))), axis=1)
+    X_second = numpy.concatenate((X_second, Y.reshape((-1, 1))), axis=1)
+    return X_first,X_second,X
+
 
 
 def square_distance(a, b):
@@ -100,96 +144,214 @@ class KDTree(object):
         recursive_search(self.root)
         return bestOccurrences, bestSDs
 
-
-
-def main(dataQuant = 1000, dataSet = [], destinationSet = [], maxLeafSize = 10, k = 2):
+# Generates the tree and calculates the precision and the predictions 
+def calculateTreeData(dataSet, testSet, maxLeafSize, k):
     
-    # 
-    #
-    print("Generating dataset if not provided")
-    dataSet = dataSet if dataSet else getParsedData(dataQuant - (dataQuant/5))
-    destinationSet = destinationSet if destinationSet else getParsedData(dataQuant/5)
+    
+    predictionList = []
 
-
-    print("Creating tree")
+    tree = 0
+    print("Generating tree")
     tree = KDTree(maxLeafSize, dataSet)
-    precision = 0
+    
 
     print("Processing")
-    for testPerson in destinationSet:
+
+    precision = 0
+    for testPerson in testSet:
         # For each person make the search of the N nearest neighbors
         bestOccurrences, bestSDs = tree.knn(testPerson, k)
-        
-        #sort both lists
-        bestOccurrences = [x for _,x in sorted(zip(bestSDs, bestOccurrences))]
-        bestSDs = sorted(bestSDs)
+        predict =  max(set(bestOccurrences), key = bestOccurrences.count)
+        predictionList.append(predict)
+        if predict == testPerson[-1]:
 
-        #Figure out which political party is the plurality > the prediction
-        partidos = [g08.PARTIDOS[int(bestOccurrences[i])] for i in range(len(bestOccurrences))]
-        pluralidad =  max(set(bestOccurrences), key = bestOccurrences.count)
-        
-        # MIN SQUARED ERROR minsq = min(square_distance(p, destinationSet[0]) for p in dataSet)
-
-
-        #print(pluralidad, " vs ", testPerson[-1])
-        if pluralidad == testPerson[-1]:
             precision += 1
 
-
-    # Define total precision
-    precision = precision / len(destinationSet)
+    precision = precision / len(testSet)
     print("Total precision: ", precision)
-    print(bestOccurrences)
-    return tree, bestOccurrences, bestSDs, precision
+    return tree, precision, predictionList
 
-"""
-def separate(lst, parts):
-    ret = []
-    quant = len(lst)/parts
-    for i in range(parts):
-        base = int(quant*i)
-        ending = int(quant*i+quant)
-        ret.append(lst[base : ending])
+
+# Calculates the tree data for each round
+def kdknn(allSets, maxLeafSize = 10, k = 3):
     
-    return ret
+    #
+    if not allSets:
+        return
 
-def crossValidate(data, parts = 10):
+    set1 = allSets[0][0]
+    tSet1 = allSets[0][1]
+    set2 = allSets[1][0]
+    tSet2 = allSets[1][1]
+    set3 = allSets[2][0]
+    tSet3 = allSets[2][1]
 
-<<<<<<< HEAD
-    error = 0
+    destinationSet = tSet3
 
-    # Separate into PARTS 
-    dataParts = separate(data, parts)
-    for i in range(parts):
+    #Ronda 1
+    print("Creating tree round 1")
+    tree1, precision1, predictions1 = calculateTreeData(set1, tSet1, maxLeafSize, k)
 
+    #Ronda 2 sin ronda 1
+    print("Creating tree round 2 without round 1")
+    tree2, precision2, predictions2 = calculateTreeData(set2, tSet2, maxLeafSize, k)
 
-        #Define dataSet training set
-        dataSet = dataParts.copy()
-
-        #Define dataTest testing set
-        dataTest = dataSet.pop(i)
-=======
->>>>>>> 33e94ed734c9c07b36ff9692e467e915bac873b0
-
-        #Format dataSet before processing
-        dataSet = list(itertools.chain.from_iterable(dataSet))
-
-        main()
-
-    return error
-"""
-dataX = getParsedData(8000)
-
-dataY = getParsedData(2000)
-
-<<<<<<< HEAD
-main(k = 40, dataSet = dataX, destinationSet = dataY)
+    #Ronda 2 con ronda 1
+    print("Creating tree round 2 with round 1")
+    tree3, precision3, predictions3 = calculateTreeData(set3, tSet3, maxLeafSize, k)
 
 
-"""
-dataX = getParsedData(10)
-crossValidate(dataX, 2)
-"""
-=======
-main(k = 4, dataSet = dataX, destinationSet = dataY)
->>>>>>> 33e94ed734c9c07b36ff9692e467e915bac873b0
+    return destinationSet, [tree1, tree2, tree3] , [predictions1, predictions2, predictions3], [precision1, precision2, precision3]
+
+# Defines train/validate parts of the dataset for cross validation
+def processSplittedData(splitted, index):
+    # Lists with the datasets splitted
+    datasetPerRound = []
+
+    trainWith = splitted.copy()
+    testWith = trainWith.pop(index)
+    trainWith = list(itertools.chain.from_iterable(trainWith))
+
+    datasetPerRound.append(trainWith)
+    datasetPerRound.append(testWith)
+
+    return datasetPerRound
+
+
+# Switches 2 columns of a given dataset
+def switchColumns(dataSet, x, y):
+    for i in range(len(dataSet)):
+        dataSet[i][x], dataSet[i][y] = dataSet[i][y], dataSet[i][x] 
+    return dataSet
+
+
+
+# Divides the dataset in training and test based on the percentage
+def divide_dataset(dataSet, percent):
+    return dataSet[0: int(((len(dataSet)*(1-percent))))] , dataSet[int(((len(dataSet)*(1-percent)))):]
+
+
+# Makes the cross validation training and calls the final tests
+def cross_validate(dataset = [], parts = 2, percent = 20, k=3):
+    percent = percent/100 if percent>1 else percent
+    # Get full datasets 1, 2, 3 (The same dataset expressed in different ways)
+
+    trainDataset, testDataset = divide_dataset(dataset, percent)
+
+    data1, data2, data3 = shape_data(trainDataset)
+
+    trees1 = []
+    trees2 = []
+    trees3 = []
+
+    precisions1 = []
+    precisions2 = []
+    precisions3 = []
+
+    data3 = switchColumns(data3.copy(), 7, len(data3[0])-2)
+
+    # Format data for cross validation
+    parts = int(len(data1)//parts)
+
+
+    # Cross validate data 1
+    data1split = [data1[i:i+parts] for i  in range(0, len(data1), parts)]
+    data2split = [data2[i:i+parts] for i  in range(0, len(data2), parts)]
+    data3split = [data3[i:i+parts] for i  in range(0, len(data3), parts)]
+    #list(itertools.chain.from_iterable(lists))
+    
+    for i in range(len(data3split)):
+        
+        allDatasets = []
+        
+
+        print("TESTING WITH: ", i)
+
+        
+
+        # Round 1
+        datasetPerRound = processSplittedData(data1split, i)
+        allDatasets.append(datasetPerRound)
+
+        # Round 2 without
+        datasetPerRound = processSplittedData(data2split, i)
+        allDatasets.append(datasetPerRound)
+
+        # Round 2 with
+        datasetPerRound = processSplittedData(data3split, i)
+        allDatasets.append(datasetPerRound)
+        
+        _, trees , _, precisions = kdknn(allSets = allDatasets, k=k)
+
+        trees1.append(trees[0])
+        trees2.append(trees[1])
+        trees3.append(trees[2])
+        precisions1.append(precisions[0])
+        precisions2.append(precisions[1])
+        precisions3.append(precisions[2])
+
+
+    finalSet1, finalSet2, finalSet3 = shape_data(testDataset) #CHANGE
+
+    bestTree1, bestTree2, bestTree3 = getBestTrees(trees1, trees2, trees3, precisions1, precisions2, precisions3)
+    
+    finalDict = finalTests([bestTree1, bestTree2, bestTree3], [finalSet1, finalSet2, finalSet3])
+    finalDict['err_train'] = sum([  sum(precisions1)/float(len(precisions1)) , sum(precisions2)/float(len(precisions2)) , sum(precisions3)/float(len(precisions3)) ]) / 3
+    finalDict['train_set'] = trainDataset
+
+    return finalDict
+
+# Makes the final test with the untouched dataset
+def finalTests(bestTrees, dataSets, k=3):
+    dataSetIndex = 0
+
+    finalDict = {
+        'res_1':        [],
+        'res_2':        [],
+        'res_3':        [],
+        'err_train':    0.0,
+        'err_test':     0.0,
+        'train_set':    []
+    }
+
+
+    totalPrecision=0
+    for dataSet in dataSets:
+
+        resString = 'res_'+str(dataSetIndex+1)
+
+        tree = bestTrees[dataSetIndex]
+        print("Processing tests")
+        precision = 0
+        for testPerson in dataSet:
+            bestOccurrences, bestSDs = tree.knn(testPerson, k)
+            predict =  max(set(bestOccurrences), key = bestOccurrences.count)
+            if predict == testPerson[-1]:
+                precision += 1
+            finalDict[resString].append(g08.PARTIDOS[int(predict)])
+
+
+        precision = precision / len(dataSet)
+        totalPrecision += precision
+        dataSetIndex += 1
+        print("Error ",dataSetIndex,": ", 1-precision)
+    
+    finalDict['err_test']= totalPrecision/3
+
+    return finalDict
+
+# Returns the best trees for each round based on the precision they had
+def getBestTrees(trees1, trees2, trees3, precisions1, precisions2, precisions3):
+    print("Best precision 1", max(precisions1))
+    ind1 = precisions1.index(max(precisions1))
+    print("Best precision 2", max(precisions2))
+    ind2 = precisions2.index(max(precisions2))
+    print("Best precision 3", max(precisions3))
+    ind3 = precisions3.index(max(precisions3))
+
+
+    return trees1[ind1], trees2[ind2], trees3[ind3]
+
+cross_validate(dataset = numpy.array(g08.generar_muestra_pais(2005,1)))
+
+
