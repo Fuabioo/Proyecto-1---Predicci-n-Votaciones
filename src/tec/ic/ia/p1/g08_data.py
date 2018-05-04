@@ -54,7 +54,7 @@ def shaped_data2(n,sample_type = 0):
     Y = dataset[:,-1]
 
     # encode class values as integers
-    encoderY = LabelEncoder()
+    encoderY = LabelEncodeStandardScalerr()
     encoderY.fit(Y)
     encoded_Y = encoderY.transform(Y)
 
@@ -290,7 +290,7 @@ def shaped_data_kdtrees(n,sample_type = 1):
     X31 = encoderX31.transform(X31)
 
 
-    scaler = StandardScaler()
+    scaler = MinMaxzScaler()
     scaler.fit(X)
     X = scaler.transform(X)
     
