@@ -51,7 +51,8 @@ def regresion_logistica(args, dataset):
     Ejecucion de la regresion logica
     """
     print("Regresion con l1", args.l1, ", l2", args.l2)
-    g08_regresion.regression(dataset, args.porcentaje_pruebas, args.l1, args.l2)
+    result = g08_regresion.regression(dataset, args.porcentaje_pruebas, args.l1, args.l2)
+    get_output(dataset, result, "REGRESION_LOGISTICA")
 
 def red_neuronal(args, dataset):
     """
@@ -180,7 +181,7 @@ def get_output(initial_dataset, result, model_name):
     """
     size = len(result["res_1"])
     for i in range(size):
-        #initial_dataset[i].append(result["train_set"][i])
+        initial_dataset[i].append(result["train_set"][i])
         initial_dataset[i].append(result["res_1"][i])
         initial_dataset[i].append(result["res_2"][i])
         initial_dataset[i].append(result["res_3"][i])

@@ -368,5 +368,5 @@ def getBestTrees(trees1, trees2, trees3, accuracies1, accuracies2, accuracies3):
 
     return trees1[ind1], trees2[ind2], trees3[ind3]
 
-
-cross_validate(dataset = numpy.array(g08.generar_muestra_pais(1003,1)))
+if __name__ == '__main__':
+    cross_validate(dataset = numpy.array(g08.generar_muestra_pais(1003,1)))
