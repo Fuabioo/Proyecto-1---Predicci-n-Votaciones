@@ -1,6 +1,8 @@
 import numpy
 import pandas
 from tec.ic.ia.p1 import g08_data
+from tec.ic.ia.pc1 import g08
+
 from keras.models import Sequential
 from keras.layers import Dense
 from keras.wrappers.scikit_learn import KerasClassifier
@@ -50,7 +52,7 @@ def execute_model(hidden_layer_amount, hidden_unit_amount, activation_fun):
 
     # load dataset
 
-    [X1, Y1],[X2, Y2],[X3, Y3] = g08_data.shaped_data2(10000)
+    [X1, Y1],[X2, Y2],[X3, Y3] = g08_data.shaped_data2(1000)
     X_train, X_test, Y_train, Y_test = train_test_split(X1, Y1, test_size=0.20, random_state=seed)
 
     cvmodels = []
@@ -118,7 +120,7 @@ def execute_model(hidden_layer_amount, hidden_unit_amount, activation_fun):
         if predictions[i] == Y_test[i]:
             success+=1
     print(110*success/len(predictions))
-    partidos2 = [g08.PARTIDOS[int(predictions[i])] for i in range(len(predictions))]
+    partidos2 = [g08.PARTIDOS2[int(predictions[i])] for i in range(len(predictions))]
 
 
     X_train, X_test, Y_train, Y_test = train_test_split(X3, Y3, test_size=0.20, random_state=seed)
@@ -151,7 +153,7 @@ def execute_model(hidden_layer_amount, hidden_unit_amount, activation_fun):
         if predictions[i] == Y_test[i]:
             success+=1
     print(110*success/len(predictions))
-    partidos3 = [g08.PARTIDOS[int(predictions[i])] for i in range(len(predictions))]
+    partidos3 = [g08.PARTIDOS2[int(predictions[i])] for i in range(len(predictions))]
 
 
     return X1,partidos1,partidos2,partidos3
