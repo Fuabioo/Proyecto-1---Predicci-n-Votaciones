@@ -54,7 +54,7 @@ def shaped_data2(n,sample_type = 0):
     Y = dataset[:,-1]
 
     # encode class values as integers
-    encoderY = LabelEncodeStandardScaler()
+    encoderY = LabelEncoder()
     encoderY.fit(Y)
     encoded_Y = encoderY.transform(Y)
 
