@@ -235,11 +235,6 @@ def shaped_data_no_bin2(n,sample_type = 1):
     X = numpy.concatenate((X0.reshape((-1, 1)), X), axis=1)
     X = numpy.concatenate((X, X31.reshape((-1, 1))), axis=1)
 
-    
-   
-
-
-
     X_second = X
     
     X = numpy.concatenate((X, X32.reshape((-1, 1))), axis=1)
@@ -263,3 +258,62 @@ def shaped_data_no_bin2(n,sample_type = 1):
 
 
 
+def shaped_data_kdtrees(n,sample_type = 1):
+    dataset = numpy.array(g08.generar_muestra_pais(n,1))
+
+    X = dataset[:,1:-3].astype(float)
+    X0 = dataset[:,0]
+    X32 = dataset[:,-2]
+    X31 = dataset[:,-3]
+
+
+    Y = dataset[:,-1]
+
+    # encode class values as integers
+    encoderY = LabelEncoder()
+    encoderY.fit(Y)
+    encoded_Y = encoderY.transform(Y)
+
+    # encode class values as integers
+    encoderX0 = LabelEncoder()
+    encoderX0.fit(X0)
+    X0 = encoderX0.transform(X0)
+
+    # encode class values as integers
+    encoderX32 = LabelEncoder()
+    encoderX32.fit(X32)
+    X32 = encoderX32.transform(X32)
+
+
+    encoderX31 = LabelEncoder()
+    encoderX31.fit(X31)
+    X31 = encoderX31.transform(X31)
+
+
+    scaler = StandardScaler()
+    scaler.fit(X)
+    X = scaler.transform(X)
+    
+
+    X = numpy.concatenate((X0.reshape((-1, 1)), X), axis=1)
+    X = numpy.concatenate((X, X31.reshape((-1, 1))), axis=1)
+
+    X_second = X
+    
+    X = numpy.concatenate((X, X32.reshape((-1, 1))), axis=1)
+
+    X_first = X
+    
+    
+    
+
+
+    
+    Y = numpy.array([g08.PARTIDOS.index(Y[i]) for i in range(len(Y))])
+
+    X = numpy.concatenate((X, Y.reshape((-1, 1))), axis=1)
+
+
+    X_second = numpy.concatenate((X_second, Y.reshape((-1, 1))), axis=1)
+    
+    return X_first,X_second,X
