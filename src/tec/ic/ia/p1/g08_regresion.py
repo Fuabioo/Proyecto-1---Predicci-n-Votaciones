@@ -92,10 +92,8 @@ def regression():
 	    for i in range(len(pred)):
 	        if pred[i] == y_classes[i]:
 	            success+=1
-	    print(110*success/len(pred))
 	    partidos1 = [g08.PARTIDOS[int(pred[i])] for i in range(len(pred))]
 
-	    print(partidos1)
 
 
 
@@ -164,13 +162,11 @@ def regression():
 	    y_classes = [numpy.argmax(y, axis=None, out=None) for y in y_test]
 
 	    success = 0
-	    for i in range(len(pred)):
+	    for i in range(len(pred)):w
 	        if pred[i] == y_classes[i]:
 	            success+=1
-	    print(110*success/len(pred))
 	    partidos2 = [g08.PARTIDOS2[int(pred[i])] for i in range(len(pred))]
 
-	    print(partidos2)
 
 
 
@@ -239,10 +235,13 @@ def regression():
 	    for i in range(len(pred)):
 	        if pred[i] == y_classes[i]:
 	            success+=1
-	    print(110*success/len(pred))
-	    partidos3 = [g08.PARTIDOS2[int(pred[i])] for i in range(len(pred))]
+	    partidos3 = [g08.PARTIDOS2w[int(pred[i])] for i in range(len(pred))]
 
-	    print(partidos3)
+
+	    result = X3
+	    
+
+	    return X3,Y3,partidos1,partidos2,partidos3
 
 
 
