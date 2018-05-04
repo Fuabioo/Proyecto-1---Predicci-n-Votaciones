@@ -6,9 +6,9 @@ import numpy
 from argparse import ArgumentParser
 
 from tec.ic.ia.p1 import g08_redes_neuronales
-#from tec.ic.ia.p1 import g08_kdtrees
+from tec.ic.ia.p1 import g08_kdtrees
 #from tec.ic.ia.p1 import g08_desicion_tree
-#from tec.ic.ia.p1 import g08_regresion
+from tec.ic.ia.p1 import g08_regresion
 from tec.ic.ia.pc1 import g08
 
 def get_args():
@@ -51,7 +51,7 @@ def regresion_logistica(args, dataset):
     Ejecucion de la regresion logica
     """
     print("Regresion con l1", args.l1, ", l2", args.l2)
-
+    g08_regresion.regression(args.l1, args.l2)
 
 def red_neuronal(args, dataset):
     """

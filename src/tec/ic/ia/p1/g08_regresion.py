@@ -13,7 +13,7 @@ import tensorflow as tf
 
 
 
-def regression():
+def regression(l1=False, l2=False):
 
 
 	seed = 7
@@ -270,5 +270,5 @@ def regression():
 
 
 
-
-regression()
+if __name__ == '__main__':
+	regression()
