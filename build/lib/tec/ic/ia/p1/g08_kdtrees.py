@@ -240,10 +240,14 @@ def cross_validate(dataset = [], parts = 2, percent = 20, k=3):
 
     data1, data2, data3 = shape_data(trainDataset)
 
+    isTraining = []
+
     trees1 = []
     trees2 = []
     trees3 = []
-
+    predictions1 = []
+    predictions2 = []
+    predictions3 = []
     precisions1 = []
     precisions2 = []
     precisions3 = []
@@ -281,23 +285,37 @@ def cross_validate(dataset = [], parts = 2, percent = 20, k=3):
         datasetPerRound = processSplittedData(data3split, i)
         allDatasets.append(datasetPerRound)
         
-        _, trees , _, precisions = kdknn(allSets = allDatasets, k=k)
-
+        _, trees , predictions, precisions = kdknn(allSets = allDatasets, k=k)
+        isTraining.append('True')
         trees1.append(trees[0])
         trees2.append(trees[1])
         trees3.append(trees[2])
+        predictions1.append(predictions[0])
+        predictions2.append(predictions[1])
+        predictions3.append(predictions[2])
         precisions1.append(precisions[0])
         precisions2.append(precisions[1])
         precisions3.append(precisions[2])
 
 
+    length = len(dataset) - len(isTraining)
+    for i in range(length):
+        isTraining.append('False')
+
     finalSet1, finalSet2, finalSet3 = shape_data(testDataset) #CHANGE
+    print("-------------------\n finalsetlen", len(finalSet1))
 
     bestTree1, bestTree2, bestTree3 = getBestTrees(trees1, trees2, trees3, precisions1, precisions2, precisions3)
     
+
+    # Prepare output
     finalDict = finalTests([bestTree1, bestTree2, bestTree3], [finalSet1, finalSet2, finalSet3])
     finalDict['err_train'] = sum([  sum(precisions1)/float(len(precisions1)) , sum(precisions2)/float(len(precisions2)) , sum(precisions3)/float(len(precisions3)) ]) / 3
-    finalDict['train_set'] = trainDataset
+    
+    finalDict['train_set'] = isTraining
+    finalDict['res_1'] = predictions1 + finalDict['res_1']
+    finalDict['res_2'] = predictions2 + finalDict['res_2']
+    finalDict['res_3'] = predictions3 + finalDict['res_3']
 
     return finalDict
 
@@ -351,7 +369,3 @@ def getBestTrees(trees1, trees2, trees3, precisions1, precisions2, precisions3):
 
 
     return trees1[ind1], trees2[ind2], trees3[ind3]
-
-cross_validate(dataset = numpy.array(g08.generar_muestra_pais(2005,1)))
-
-

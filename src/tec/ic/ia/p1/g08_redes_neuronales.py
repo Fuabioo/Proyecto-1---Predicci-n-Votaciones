@@ -64,6 +64,8 @@ def execute_model(hidden_layer_amount, hidden_unit_amount, activation_fun, datas
     [X1, Y1],[X2, Y2],[X3, Y3] = g08_data.shaped_data2(dataset)
     X_train, X_test, Y_train, Y_test = non_shuffling_train_test_split(X1, Y1, test_percentage/100)
 
+
+
     cvmodels = []
     cvscores = []
     n_split = max(Y_test)//2
@@ -150,7 +152,6 @@ def execute_model(hidden_layer_amount, hidden_unit_amount, activation_fun, datas
     second = [g08.PARTIDOS2[int(predictions[i])] for i in range(len(predictions))]
 
 
-
     predictions = estimator.predict_classes(X_test)
 
 
@@ -161,9 +162,11 @@ def execute_model(hidden_layer_amount, hidden_unit_amount, activation_fun, datas
     
     train_second = [g08.PARTIDOS2[int(predictions[i])] for i in range(len(predictions))]
     second_acc = (110*success/len(predictions))
-    second += train_first
+    second += train_second
 
- 
+
+
+
     #################
     # ThirdRound
     #################
@@ -199,9 +202,13 @@ def execute_model(hidden_layer_amount, hidden_unit_amount, activation_fun, datas
             success+=1
     third = [g08.PARTIDOS2[int(predictions[i])] for i in range(len(predictions))]
 
-
+    print(predictions)
+    print(third)
 
     predictions = estimator.predict_classes(X_test)
+
+
+
 
     success = 0
     for i in range(len(predictions)):
@@ -210,7 +217,8 @@ def execute_model(hidden_layer_amount, hidden_unit_amount, activation_fun, datas
     
     train_third = [g08.PARTIDOS2[int(predictions[i])] for i in range(len(predictions))]
     third_acc = (110*success/len(predictions))
-    third += train_first
+    third += train_third
+
 
  
 

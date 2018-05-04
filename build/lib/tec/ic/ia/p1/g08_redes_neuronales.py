@@ -52,7 +52,6 @@ def non_shuffling_train_test_split(X, y, test_size=0.2):
 def execute_model(hidden_layer_amount, hidden_unit_amount, activation_fun, dataset, test_percentage):
 
 
-    print("1")
 
     # fix random seed for reproducibility
     seed = 7
@@ -64,6 +63,8 @@ def execute_model(hidden_layer_amount, hidden_unit_amount, activation_fun, datas
 
     [X1, Y1],[X2, Y2],[X3, Y3] = g08_data.shaped_data2(dataset)
     X_train, X_test, Y_train, Y_test = non_shuffling_train_test_split(X1, Y1, test_percentage/100)
+
+
 
     cvmodels = []
     cvscores = []
@@ -111,8 +112,6 @@ def execute_model(hidden_layer_amount, hidden_unit_amount, activation_fun, datas
     first += train_first
 
 
-
-    print("2")
  
 
 
@@ -153,7 +152,6 @@ def execute_model(hidden_layer_amount, hidden_unit_amount, activation_fun, datas
     second = [g08.PARTIDOS2[int(predictions[i])] for i in range(len(predictions))]
 
 
-
     predictions = estimator.predict_classes(X_test)
 
 
@@ -164,10 +162,11 @@ def execute_model(hidden_layer_amount, hidden_unit_amount, activation_fun, datas
     
     train_second = [g08.PARTIDOS2[int(predictions[i])] for i in range(len(predictions))]
     second_acc = (110*success/len(predictions))
-    second += train_first
+    second += train_second
 
-    print("3")
- 
+
+
+
     #################
     # ThirdRound
     #################
@@ -203,9 +202,13 @@ def execute_model(hidden_layer_amount, hidden_unit_amount, activation_fun, datas
             success+=1
     third = [g08.PARTIDOS2[int(predictions[i])] for i in range(len(predictions))]
 
-
+    print(predictions)
+    print(third)
 
     predictions = estimator.predict_classes(X_test)
+
+
+
 
     success = 0
     for i in range(len(predictions)):
@@ -214,9 +217,9 @@ def execute_model(hidden_layer_amount, hidden_unit_amount, activation_fun, datas
     
     train_third = [g08.PARTIDOS2[int(predictions[i])] for i in range(len(predictions))]
     third_acc = (110*success/len(predictions))
-    third += train_first
+    third += train_third
 
-    print("4")
+
  
 
     finalDict = {
