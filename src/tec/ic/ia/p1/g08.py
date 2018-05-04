@@ -2,6 +2,7 @@
 Proyecto #1 - Predicción Votaciones
 """
 import csv
+import numpy
 from argparse import ArgumentParser
 
 from tec.ic.ia.p1 import g08_redes_neuronales
@@ -74,6 +75,7 @@ def red_neuronal(args, dataset):
             args.funcion_activacion,
             dataset,
             args.porcentaje_pruebas)
+        get_output(dataset, result, "RED_NEURONAL")
 
 
 def arbol(args, dataset):
@@ -92,7 +94,7 @@ def knn(args, dataset):
     else:
         print("KNN con k = ", args.k)
         # g08_kdtrees.main(dataQuant = args.poblacion, k = args.k)
-        result = g08_kdtrees.cross_validate(dataset=dataset, percent=args.porcentaje_pruebas, k=args.k)
+        result = g08_kdtrees.cross_validate(dataset=numpy.array(dataset), percent=args.porcentaje_pruebas, k=args.k)
         # result = {
         #     "res_1":["PAC", "PUSC", "RN", "PAC", "LN"],
         #     "res_2":["PAC", "PAC", "RN", "PAC", "RN"],
@@ -178,7 +180,7 @@ def get_output(initial_dataset, result, model_name):
     """
     size = len(result["res_1"])
     for i in range(size):
-        initial_dataset[i].append(result["train_set"][i])
+        #initial_dataset[i].append(result["train_set"][i])
         initial_dataset[i].append(result["res_1"][i])
         initial_dataset[i].append(result["res_2"][i])
         initial_dataset[i].append(result["res_3"][i])
