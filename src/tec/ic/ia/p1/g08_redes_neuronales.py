@@ -64,7 +64,9 @@ def execute_model(hidden_layer_amount, hidden_unit_amount, activation_fun, datas
 
     cvmodels = []
     cvscores = []
-    kfold = StratifiedKFold(n_splits=10, shuffle=True, random_state=seed)
+    n_split = len(Y_test)//2
+    if n_split < 2: n_split = 2
+    kfold = StratifiedKFold(n_splits=n_split, shuffle=True, random_state=seed)
     for train, test in kfold.split(X_train, Y_train):
 
 
