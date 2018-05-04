@@ -7,9 +7,15 @@ import random
 from pptree import *
 sys.setrecursionlimit(5000)
 
-error_margin = 0.0
-data = list(numpy.array(g08.generar_muestra_pais(50)))
-attr = list(range(len(data[0])))
+
+
+
+
+
+
+
+
+
 names = ["Canton","Población total","Superficie","Densidad Poblacional",
         "Personas en zona urbana","Hombre/Mujer", "Dependiente",
         "Viviendas individuales", "Promedio de ocupantes","Viviendas en buen estado",
@@ -127,10 +133,10 @@ def create_decision_tree(data, attributes, target_attr, fitness_func, names, hea
     default = majority_value(data, target_attr)
 
     # If the dataset is empty or the attributes list is empty, return the
-    # default value. When checking the attributes list for emptiness, we
-    # need to subtract 1 to account for the target attribute.
+    # default value
     if not data or (len(attributes) - 1) <= 0:
         return default
+
     # If all the records in the dataset have the same classification,
     # return that classification.
     elif vals.count(vals[0]) == len(vals):
@@ -141,13 +147,7 @@ def create_decision_tree(data, attributes, target_attr, fitness_func, names, hea
                                 fitness_func)
         if best == -1:
             return
-        # Create a new decision tree/node with the best attribute and an empty
-        # dictionary object--we'll fill that up next.
-        # We use the collections.defaultdict function to add a function to the
-        # new tree that will be called whenever we query the tree with an
-        # attribute that does not exist.  This way we return the default value
-        # for the target attribute whenever, we have an attribute combination
-        # that wasn't seen during training.
+        # Create the tree
 
         tree = Tree(names[best[0]],val,best[1],head)
 
@@ -217,7 +217,7 @@ def validate(tree,dataset):
     for element in dataset:
         if element[len(element)-1] == check(tree,element):
             ok += 1
-    return "Accuracy "+str((ok/len(dataset)*100))+"%"
+    return ok/len(dataset)
 
 
 
@@ -236,9 +236,69 @@ def chooser(percents):
             return i
     return len(percents)-1
 
-tree = (create_decision_tree(data, attr, len(data[0])-1, gain, names))
-#print_tree(tree ,'children' , 'name' )
-#print_tree(tree ,'children' , 'percents' )
+def divide_dataset(dataSet, percent):
+    return dataSet[0: int(((len(dataSet)*(1-percent))))] , dataSet[int(((len(dataSet)*(1-percent)))):]
+
+# Defines train/validate parts of the dataset for cross validation
+def processSplittedData(splitted, index):
+    # Lists with the datasets splitted
+    datasetPerRound = []
+
+    trainWith = splitted.copy()
+    testWith = trainWith.pop(index)
+    trainWith = list(itertools.chain.from_iterable(trainWith))
+
+    datasetPerRound.append(trainWith)
+    datasetPerRound.append(testWith)
+
+    return datasetPerRound
+
+def cross_validate(dataset = [], parts = 2, error_margin = 0.0, test_percent = 0.2):
+    predictions = []
+    precisions = []
+    trees = []
+
+    #Format test percentage
+    test_percent = test_percent/100 if test_percent>1 else test_percent
+
+    #Obtain the 2 sub-datasets
+    training_dataset, test_dataset = divide_dataset(dataset, test_percent)
+
+    # Format "parts" for dividing the dataset in parts
+    parts = int(len(training_dataset)//parts)
+
+    # Split the data for cross validation
+    splitted_dataset = [training_dataset[i:i+parts] for i  in range(0, len(training_dataset), parts)]
+
+
+    # Proceed with cross validation
+    training_with = []
+    testing_with = []
+    working_dataset = splitted_dataset.copy()
+    for part in range(splitted_dataset):
+        print("TESTING WITH ", part)
+        training_with, testing_with = processSplittedData(working_dataset, part)
+
+
+        #Create the tree for the part
+        attr = list(range(len(training_with[0])))
+        tree = create_decision_tree(training_with, attr, len(training_with[0])-1, gain, names)
+        trees.append(tree)
+
+        #Validate the created tree
+        predictions, accuracy = validate(tree, testing_with)    #This should return the predictions and the accuracy
+
+
+       
+
+
+    return
+
+
+data = list(numpy.array(g08.generar_muestra_pais(50)))
+cross_validate(dataset= data)
+
+
 
 
 print(validate(tree,data))
