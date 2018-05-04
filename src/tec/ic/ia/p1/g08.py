@@ -51,7 +51,7 @@ def regresion_logistica(args, dataset):
     Ejecucion de la regresion logica
     """
     print("Regresion con l1", args.l1, ", l2", args.l2)
-    g08_regresion.regression(args.l1, args.l2)
+    g08_regresion.regression(dataset, args.porcentaje_pruebas, args.l1, args.l2)
 
 def red_neuronal(args, dataset):
     """

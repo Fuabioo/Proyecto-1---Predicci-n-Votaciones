@@ -13,7 +13,7 @@ import tensorflow as tf
 
 
 
-def regression(l1=False, l2=False):
+def regression(dataset, percentage, l1=False, l2=False):
 
 
 	seed = 7
@@ -26,11 +26,11 @@ def regression(l1=False, l2=False):
 	display_step = 300
 	# load dataset
 
-	[X1, Y1],[X2, Y2],[X3, Y3] = g08_data.shaped_data_regression(10000)
+	[X1, Y1],[X2, Y2],[X3, Y3] = g08_data.shaped_data_regression(dataset)
 
 
 
-	x_train, x_test, y_train, y_test = train_test_split(X1, Y1, test_size = 0.1, random_state=0)
+	x_train, x_test, y_train, y_test = train_test_split(X1, Y1, test_size = percentage/100, random_state=0)
 
 	num_features = x_train.shape[1]
 
