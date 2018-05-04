@@ -4,8 +4,8 @@ from sklearn.preprocessing import LabelEncoder
 from keras.utils import np_utils
 from sklearn.preprocessing import StandardScaler,MinMaxScaler
 
-def shaped_data(n,sample_type = 0):
-    dataset = numpy.array(g08.generar_muestra_pais(n,sample_type))
+def shaped_data(dataset):
+    dataset = numpy.array(dataset)
 
 
     X = dataset[:,1:-2].astype(float)
@@ -42,8 +42,8 @@ def shaped_data(n,sample_type = 0):
     return X,dummy_y
 
 
-def shaped_data2(n,sample_type = 0):
-    dataset = numpy.array(g08.generar_muestra_pais(n,1))
+def shaped_data2(dataset):
+    dataset = numpy.array(dataset)
 
 
     X = dataset[:,1:-3].astype(float)
@@ -101,8 +101,8 @@ def shaped_data2(n,sample_type = 0):
     return [X_second,X32],[X_second,encoded_Y],[X,encoded_Y]
 
 
-def shaped_data_regression(n,sample_type = 0):
-    dataset = numpy.array(g08.generar_muestra_pais(n,1))
+def shaped_data_regression(dataset):
+    dataset = numpy.array(dataset)
 
 
     X = dataset[:,1:-3].astype(float)
@@ -163,8 +163,8 @@ def shaped_data_regression(n,sample_type = 0):
 
 
 
-def shaped_data_no_bin(n,sample_type = 0):
-    dataset = numpy.array(g08.generar_muestra_pais(n,sample_type))
+def shaped_data_no_bin(dataset):
+    dataset = numpy.array(dataset)
 
 
     X = dataset[:,1:-2].astype(float)
@@ -199,8 +199,8 @@ def shaped_data_no_bin(n,sample_type = 0):
 
 
 
-def shaped_data_no_bin2(n,sample_type = 1):
-    dataset = numpy.array(g08.generar_muestra_pais(n,1))
+def shaped_data_no_bin2(dataset):
+    dataset = numpy.array(dataset)
 
     X = dataset[:,1:-3].astype(float)
     X0 = dataset[:,0]
@@ -258,8 +258,8 @@ def shaped_data_no_bin2(n,sample_type = 1):
 
 
 
-def shaped_data_kdtrees(n,sample_type = 1):
-    dataset = numpy.array(g08.generar_muestra_pais(n,1))
+def shaped_data_kdtrees(dataset):
+    dataset = numpy.array(dataset)
 
     X = dataset[:,1:-3].astype(float)
     X0 = dataset[:,0]

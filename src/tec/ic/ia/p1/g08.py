@@ -68,9 +68,11 @@ def red_neuronal(args, dataset):
             "unidades por capa y",
             args.funcion_activacion,
             "como funcion de activacion")
-        g08_redes_neuronales.execute_model(args.numero_capas,
+        result = g08_redes_neuronales.execute_model(args.numero_capas,
             args.unidades_por_capa,
-            args.funcion_activacion)
+            args.funcion_activacion,
+            dataset,
+            args.porcentaje_pruebas)
 
 
 def arbol(args, dataset):
