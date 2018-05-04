@@ -263,8 +263,8 @@ def regression(l1=False, l2=False):
             'res_2':        second,
             'res_3':        third,
             'err_train':    (first_acc+second_acc+third_acc)/3,
-            'err_test':     (first_acc_train+second_acc_train+third_acc_train)/3
-            'train_set':    [True]*len(X1)+[False]*len(Y1),
+            'err_test':     (first_acc_train+second_acc_train+third_acc_train)/3,
+            'train_set':    [True]*len(X1)+[False]*len(Y1)
         }
 	return finalDict
 
