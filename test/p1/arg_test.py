@@ -4,7 +4,7 @@ def main():
 	"""
 	Main execution
 	"""
-	g08.main()
+	g08.run_prediction()
 
 if __name__ == '__main__':
 	main()
