@@ -2,8 +2,10 @@
 Inteligencia Artificial
 ======
 Instituto Tecnológico de Costa Rica
+
 Ingeniería en Computación
-IC6200- Inteligencia Artificial
+
+IC6200 - Inteligencia Artificial
 
 Grupo #8
 ------
@@ -17,10 +19,6 @@ Grupo #8
 Contenidos
 ------
 
-- Instalación
-  > Dependencias
-  > Modulo
-- Uso
 - Proyecto Corto 1 - Simulador Votos (pc1)
   > Descripcion
   > Implementacion
@@ -32,67 +30,12 @@ Contenidos
   > Modelos lineales
   > Redes neuronales
   > Arboles K-D y KNN
+- Apéndice
+  > Instalación
+  > Uso
 
   
 
-Instalación
-------
-
-  
-
-**Dependencias**
-
-  
-
-tensorflow
-
-```bash
-python -m pip install tensorflow
-```
-
-sklearn
-
-```bash
-python -m pip install sklearn
-```
-
-pandas
-
-```bash
-python -m pip install pandas
-```
-
-keras
-
-```bash
-python -m pip install keras
-```
-
-  
-
-**Modulo (Opcion #1):**
-
-```bash
-python setup.py sdist
-python -m pip install dist/tec-2.X.tar.gz
-```
-
-**Modulo (Opcion #2):**
-
-```bash
-python setup.py install
-```
-
-  
-Uso
-------
-  Para ejecutar el predictor de votaciones se debe utilizar la siguiente estructura en cualquier programa de python:
-```python
-from tec.ic.ia.p1 import g08
-
-g08.main()
-```
-Al terminar la ejecución el programa procederá a generar un archivo csv con el resultado en el directorio actual donde se ejecutó el programa. Además se muestra en la consola el nivel de precisión de la predicción.
 
 Proyecto Corto 1 - Simulador Votos
 ======
@@ -114,10 +57,78 @@ Para ello se recolectó información del Tribunal Supremo de Elecciones respecto
 
 Implementación
 ------
+Para la implementación se creó un archivo .py que almacena los datos en formato csv para las actas y los indicadores por default. Igual son parametrizables pero cuando se cargan por default se utilizan estos archivos.
 
-  
-  
-  
+Primero se leen los parametros con argparse
+
+```python
+def parse_args():
+    parser = argparse.ArgumentParser(description='Process some data.')
+    parser.add_argument(
+        '--indicadores',
+        nargs="+",
+        default=['default'],
+        help='Archivo csv. Ej: indicadores.csv')
+    parser.add_argument(
+        '--actas',
+        nargs="+",
+        default=['default'],
+        help='Archivo csv. Ej: actas.csv')
+    return parser.parse_args()
+```
+
+Luego se cargan los datos por default
+
+```python
+def load_data():
+    args = parse_args()
+    if args.indicadores[0] != 'default' and args.actas[0] != 'default':
+        indicadores.INDICADORES = open(args.indicadores[0], 'r')
+        actas.ACTAS_FINAL = open(args.actas[0], 'r')
+    elif args.indicadores[0] == 'default' and args.actas[0] != 'default':
+        actas.ACTAS_FINAL = open(args.actas[0], 'r')
+    elif args.actas[0] == 'default' and args.indicadores[0] != 'default':
+        indicadores.INDICADORES = open(args.indicadores[0], 'r')
+```
+Luego se formatea el csv a matriz de python de manera trivial. Para la función `generar_muestra_pais` lo que se hace es que se llama a la función `generar_muestra_provincia` para todas las provincias. Esta ultima función se trabaja de la siguiente manera:
+
+ 1. Se leen los archivos
+```python
+reader = csv.reader(StringIO(actas.ACTAS_FINAL))
+acts = list(reader)
+reader = csv.reader(StringIO(actas.ACTAS_FINAL2))
+acts2 = list(reader)
+reader = csv.reader(StringIO(indicadores.INDICADORES))
+indicators = list(reader)
+```
+ 2. Se obtiene el índice que separa los valores en el csv por provincia
+```python
+index = PROVINCIAS.index(nombre_provincia) * 32
+```
+ 3. Una vez trabajados los índices para funcionar con el formato interno del archivo, se genera la población
+```python
+...
+votes += get_vote(arr[:, j])
+...
+population += [[ # Demo-Geográficas
+# Canton
+(indicators[index][i]),
+# Población total
+float(indicators[index + 1][i]),
+# Superficie
+float(indicators[index + 2][i]),
+...
+# Porcentaje de hogares con jefatura
+# compartida
+get_att(indicators[index + 31][i]),
+nombre_provincia, # Provincia
+] + votes]
+...
+```
+ 4. Se retorna la población generada, en el caso de muestras de país, se concatena en el agregado de las poblaciones de distintas provincias
+```python
+population += generar_muestra_provincia(totals[i], PROVINCIAS[i],sample_type)
+```
 
 Pruebas
 ------
@@ -133,7 +144,7 @@ Para el proyecto de simulación de votos están los siguientes archivos:
 
   
 
-![Distribución para una muestra de 1000 de Alajuela](test/pc1/graficos/Alajuela-1000.png)
+![Ejemplo de grafico: Distribución para una muestra de 1000 de Alajuela](test/pc1/graficos/Alajuela-1000.png)
 
   
 
@@ -142,12 +153,33 @@ Argumentos
 
 **Simulador de votos**
 
-> --indicadores <archivo.csv>
---actas <archivo.csv>
+| Parametro | Descripción | Obligatorio |
+| -- | -- | -- |
+| --indicadores | <archivo.csv> | No |
+| --actas | <archivo.csv> | No |
 
-  
+**Predictor de votos**
 
-Ambos son evitables, puede especificarse uno, el otro, los dos o ninguno
+| Parametro | Descripción | Obligatorio | Default |
+| -- | -- | -- | -- |
+| --provincia | nombre en mayuscula | No | 'PAIS' |
+| --poblacion | cantidad de votantes | Si | N/A |
+| --porcentaje-pruebas | define el tamano del set de pruebas | Si | N/A |
+| |
+| --regresion-logistica | flag | No | N/A |
+| --l1 | cantidad de unidades por capa | No | N/A |
+| --l2 | nombre de la funcion de activacion | No | N/A |
+| |
+| --red-neuronal | flag | No | N/A |
+| --numero-capas | cantidad de capas | No | 1 |
+| --unidades-por-capa | cantidad de unidades por capa | No | 60 |
+| --funcion-activacion | nombre de la funcion de activacion | No | 'relu' |
+| |
+| --arbol | flag | No | N/A |
+| --umbral-poda | porcentaje de poda del arbol | No | 0.1 |
+| |
+| --knn | flag | No | N/A |
+| --k | k para el knn | No | 3 |
 
   
 
@@ -164,12 +196,12 @@ La salida generada, en el caso de muestra de país, tendrá la siguiente forma, 
 
   
 
-| Provincia | ... | Canton | Voto |
-| -- | -- | -- | -- |
-| Grecia | ... | Alajuela | Unidad Social Cristiana |
-| Vazquez de Coronado | ...| San Jose | Voto blanco |
-| Paraiso | ... | Cartago | Liberacion Nacional |
-| San Rafael | ... | Heredia | Partido Accion Ciudadana |
+| Provincia | ... | Canton | Voto 1ra ronda | Voto 2da ronda |
+| -- | -- | -- | -- | -- |
+| Grecia | ... | Alajuela | Unidad Social Cristiana | Partido Accion Ciudadana |
+| Vazquez de Coronado | ...| San Jose | Voto blanco | Restauracion Nacional |
+| Paraiso | ... | Cartago | Liberacion Nacional | Voto blanco |
+| San Rafael | ... | Heredia | Partido Accion Ciudadana | Partido Accion Ciudadana |
 
   
 
@@ -340,3 +372,80 @@ Una precisión baja de alrededor de 19% - 24%
 
 Se esperaba baja, pero no tanto. Se probó con diferentes valores para K y para el tamaño de las hojas, sin diferencias considerables
 
+Apéndice
+======
+Instalación
+------
+
+  
+
+**Dependencias**
+
+  
+
+tensorflow
+
+```bash
+python -m pip install tensorflow
+```
+
+sklearn
+
+```bash
+python -m pip install sklearn
+```
+
+pandas
+
+```bash
+python -m pip install pandas
+```
+
+keras
+
+```bash
+python -m pip install keras
+```
+
+  
+
+**Modulo (Opcion #1):**
+
+```bash
+python setup.py sdist
+python -m pip install dist/tec-2.X.tar.gz
+```
+
+**Modulo (Opcion #2):**
+
+```bash
+python setup.py install
+```
+
+  
+Uso
+------
+**Estructura de codigo**
+
+Para ejecutar el predictor de votaciones se debe utilizar la siguiente estructura en cualquier programa de python:
+```python
+# importar el modulo
+from tec.ic.ia.p1 import g08
+# obtener la prediccion
+g08.run_prediction()
+```
+Al terminar la ejecución el programa procederá a generar un archivo csv con el resultado en el directorio actual donde se ejecutó el programa. Además se muestra en la consola el nivel de precisión de la predicción.
+
+**Ejemplo**
+
+Considerando que un archivo python `ejemplo.py` tenga la estructura anterior y que lo que queremos es obtener la prediccion utilizando un modelo de red neuronal, lo llamamos de la siguiente manera:
+
+```bash
+python ejemplo.py --poblacion 1003 --porcentaje-pruebas 20 --red-neuronal --unidades-por-capa 60
+```
+Lo que nos va a generar un archivo llamado `red_neuronal_output.csv`
+```bash
+RED_NEURONAL
+    - Error de entrenamiento: 0.4582124
+    - Error de pruebas: 0.4012345
+```
