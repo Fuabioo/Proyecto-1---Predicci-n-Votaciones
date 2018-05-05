@@ -3,6 +3,7 @@ import math
 import numpy
 import sys
 from tec.ic.ia.pc1 import g08
+import itertools
 import random
 from pptree import *
 sys.setrecursionlimit(5000)
@@ -30,7 +31,7 @@ class Tree(object):
     def __init__(self, name, value, percents,head=None):
         self.children = []
         self.name = name
-        self.value = value
+        self.value = str(value)
         self.percents = percents
         if head:
             head.children.append(self)
@@ -73,7 +74,7 @@ def get_values(data, attr):
     data = data[:]
     return unique([record[attr] for record in data])
 
-def choose_attribute(data, attributes, target_attr, fitness):
+def choose_attribute(data, attributes, target_attr, fitness, error_margin):
     data = data[:]
     best_gain = float('inf')
     best_attr = None
@@ -127,7 +128,7 @@ def classify(tree, data):
 
     return classification
 
-def create_decision_tree(data, attributes, target_attr, fitness_func, names, head=None, val = ""):
+def create_decision_tree(data, attributes, target_attr, fitness_func, names, head=None, val = "", error_margin = 0.0):
     data = data[:]
     vals = [record[target_attr] for record in data]
     default = majority_value(data, target_attr)
@@ -144,7 +145,7 @@ def create_decision_tree(data, attributes, target_attr, fitness_func, names, hea
     else:
         # Choose the next best attribute to best classify our data
         best = choose_attribute(data, attributes, target_attr,
-                                fitness_func)
+                                fitness_func, error_margin)
         if best == -1:
             return
         # Create the tree
@@ -156,7 +157,7 @@ def create_decision_tree(data, attributes, target_attr, fitness_func, names, hea
         # best attribute field
         for val in get_values(data, best[0]):
             # Create a subtree for the current value under the "best" field
-            print([val])
+            #print([val])
             subtree = create_decision_tree(
                 get_examples(data, best[0], val),
                 [attr for attr in attributes if attr != best[0]],
@@ -214,17 +215,21 @@ def gain(data, attr, target_attr):
 
 def validate(tree,dataset):
     ok = 0
+    predictions = []
     for element in dataset:
-        if element[len(element)-1] == check(tree,element):
+        predicted =  predict(tree,element)
+        predictions.append(predicted)
+        if element[len(element)-1] == predicted:
             ok += 1
-    return ok/len(dataset)
+
+    return predictions, ok/len(dataset)
 
 
 
-def check(tree,element):
+def predict(tree,element):
     for child in tree.children:
         if child.value == element[ names.index(tree.name) ]:
-            return check(child,element)
+            return predict(child,element)
     percents = numpy.array(list(tree.percents.values()),dtype = float)/ sum(list(tree.percents.values()))
     return list(tree.percents.keys())[chooser(percents)]
 
@@ -253,52 +258,161 @@ def processSplittedData(splitted, index):
 
     return datasetPerRound
 
-def cross_validate(dataset = [], parts = 2, error_margin = 0.0, test_percent = 0.2):
-    predictions = []
-    precisions = []
-    trees = []
+def get_datasetXround(dataset, round):
+    dataset_per_round = dataset.copy()
+    if round == 1:
+        dataset_per_round = remove_idx(dataset.copy(), len(dataset[0])-1) #delete 2nd round vote
+        
+    elif round == 2:
+        dataset_per_round = remove_idx(dataset.copy(), len(dataset[0])-2) #delete 1st round vote
+    
+    return dataset_per_round
+
+    print("Error getting dataset per round")
+
+def remove_idx(dataset, i):
+
+    for element in dataset:
+        element.pop(i)
+
+    return dataset
+
+
+def get_best_trees(trees, accuracies):
+    best_trees = []
+
+    for i in range(1,4):
+        idxacc='accuracies_' + str(i)
+        idxtree='trees_' + str(i)
+        maxacc = max(accuracies[idxacc])
+        maxaccidx = accuracies[idxacc].index(maxacc)
+        best_trees.append( trees[idxtree][maxaccidx] )
+
+    return best_trees
+
+def final_tests(best_trees, test_dataset, predictions, avg_train_acc, is_training):
+    final_dict = {
+        'res_1':        predictions['predictions_1'],
+        'res_2':        predictions['predictions_2'],
+        'res_3':        predictions['predictions_3'],
+        'err_train':    avg_train_acc,
+        'err_test':     0.0,
+        'train_set':    is_training
+    }
+
+
+    accuracies = 0
+    for i in range(1,4):
+        print("=================Round ", i)
+        current_dataset = get_datasetXround(test_dataset.copy(), i)
+        tree = best_trees[i-1]
+        #Validate
+
+        res_number = 'res_' + str(i)
+        prediction, accuracy = validate(tree, test_dataset)
+        final_dict[res_number] += prediction
+        accuracies += accuracy
+        print("Accuracy: ", accuracy)
+
+    for i in range(len(test_dataset)):
+
+        final_dict['train_set'].append('False')
+
+    final_dict['err_test'] = accuracies/3
+
+
+    return final_dict    
+
+
+
+
+
+def cross_validate(dataset = [], parts = 2, error_margin = 0.0, percent = 0.2):
+    predictions = {
+        'predictions_1': [],
+        'predictions_2': [],
+        'predictions_3': []   
+    }
+    accuracies = {
+        'accuracies_1': [],
+        'accuracies_2': [],
+        'accuracies_3': []   
+    }
+    trees = {
+        'trees_1': [],
+        'trees_2': [],
+        'trees_3': []   
+    }
+    
 
     #Format test percentage
-    test_percent = test_percent/100 if test_percent>1 else test_percent
+    percent = percent/100 if percent>1 else percent
 
     #Obtain the 2 sub-datasets
-    training_dataset, test_dataset = divide_dataset(dataset, test_percent)
+    training_dataset, test_dataset = divide_dataset(dataset, percent)
 
+    print(training_dataset[0])
     # Format "parts" for dividing the dataset in parts
     parts = int(len(training_dataset)//parts)
 
-    # Split the data for cross validation
-    splitted_dataset = [training_dataset[i:i+parts] for i  in range(0, len(training_dataset), parts)]
+    #For each round
+    for round_number in range(1,4):
+        print("=================Round ", round_number)
+        current_dataset = get_datasetXround(training_dataset.copy(), round_number)
+        
+
+        # Split the data for cross validation
+        splitted_dataset = [current_dataset[i:i+parts] for i  in range(0, len(current_dataset), parts)]
 
 
-    # Proceed with cross validation
-    training_with = []
-    testing_with = []
-    working_dataset = splitted_dataset.copy()
-    for part in range(splitted_dataset):
-        print("TESTING WITH ", part)
-        training_with, testing_with = processSplittedData(working_dataset, part)
+        # Proceed with cross validation
+        training_with = []
+        testing_with = []
+        working_dataset = splitted_dataset.copy()
+        for part in range(len(splitted_dataset)):
+            print("TESTING WITH ", part)
+            training_with, testing_with = processSplittedData(working_dataset, part)
+
+            
+            #Create the tree for the part
+            attr = list(range(len(training_with[0])))
+            tree = create_decision_tree(training_with, attr, len(training_with[0])-1, gain, names)
+            
+            idxstr = 'trees_' + str(round_number)
+            trees[idxstr].append(tree)
+
+            #Validate the created tree
+            prediction, accuracy = validate(tree, testing_with)    #This should return the predictions and the accuracy
+            
+
+            idxstr = 'predictions_' + str(round_number)
+            predictions[idxstr]+= prediction
+
+            idxstr = 'accuracies_' + str(round_number)
+            accuracies[idxstr].append(accuracy)
+            print("Accuracy: ", accuracy)
+    is_training = ['False' for i in range(len(training_dataset))]
+    
+    best_trees = get_best_trees(trees, accuracies)
+
+    avg_train_acc = (sum(accuracies['accuracies_1']) + sum(accuracies['accuracies_2']) + sum(accuracies['accuracies_3']))/3
+
+    final_dict = final_tests(best_trees, test_dataset, predictions, avg_train_acc, is_training)    
+
+    """
+    print("Results")
+    print(len(final_dict['res_1']))
+    print(len(final_dict['res_2']))
+    print(len(final_dict['res_3']))
+    print(len(final_dict['train_set']))
+    print(final_dict['err_train'])
+    print(final_dict['err_test'])
+    """
+
+    return final_dict
 
 
-        #Create the tree for the part
-        attr = list(range(len(training_with[0])))
-        tree = create_decision_tree(training_with, attr, len(training_with[0])-1, gain, names)
-        trees.append(tree)
 
-        #Validate the created tree
-        predictions, accuracy = validate(tree, testing_with)    #This should return the predictions and the accuracy
+if __name__ == '__main__':
+    cross_validate(dataset = g08.generar_muestra_pais(2005,1))
 
-
-       
-
-
-    return
-
-
-data = list(numpy.array(g08.generar_muestra_pais(50)))
-cross_validate(dataset= data)
-
-
-
-
-print(validate(tree,data))
