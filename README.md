@@ -364,6 +364,22 @@ RED_NEURONAL
 **Análisis de resultados**
 
 
+Corrida con umbral de poda default (10%)
+```
+Arbol con umbral de poda 0.1
+DECISION_TREE
+   - Error de entrenamiento:  0.585427135678392
+   - Error de pruebas:  0.9583333333333334
+```
+Corrida con umbral de poda al 80%
+```
+Arbol con umbral de poda 0.8
+DECISION_TREE
+   - Error de entrenamiento:  0.7361809045226131
+   - Error de pruebas:  0.8816666666666667
+```
+
+
 Árboles K-D y KNN
 ------
 
@@ -382,16 +398,44 @@ Las modificaciones realizadas a dicho código son:
   
 
 - Datos de entrada, adaptados a los datos de prueba generados en el PC1
-- Forma general, procesamiento correcto de los datos de entrada en el nuevo formato
-- Cálculo del SqrtError, adaptado para ignorar el voto, tomando en cuenta sólo los indicadores
+- Forma general, procesamiento correcto de los datos de entrada en el nuevo formato compatible con el generador de poblaciones
+- Cálculo del SqrtError, adaptado para ignorar el voto, tomando en cuenta sólo los indicadores (Sin embargo, el voto de primera ronda es considerado un indicador cuand así se requiere )
 - Procesamiento de listas con vecinos cercanos
-- Valores de retorno, ahora la función main retorna también la lista con
+- Valores de retorno conformes con lo necesario para la obtención de información de salida
 
   
 
 Para los árboles K-D se utilizó una implementación de clases. La clase KDTree representa el árbol K-D, y su generación se hace por recursión. Se realiza un ordenamiento de todos los elementos dependiendo del eje “axis” que representa la dimensión, o en términos más simples, la posición dentro de la lista de indicadores, y se hace una partición al medio. Se hace una llamada recursiva con los elementos separados a la izquierda de la media, y otra con los de la derecha.
 
-  
+La estructura Node es la que contiene el formato utilizado para la creación de nodos del árbol. 
+Contiene 
+- point: Punto medio (mediana) del eje que separa a los hijos izquierdo y derecho del nodo
+- axis: El eje que funciona como critero de comparación para agregar nodos
+- label: La etiqueta asignada al nodo
+- left: El hijo izquierdo
+- right: El hijo derecho
+
+```python
+Node = collections.namedtuple("Node", 'point axis label left right')
+
+#Generación del árbol recursivamente
+def build_tree(objects, axis=0):
+
+            if not objects:
+                return None
+            objects.sort(key=lambda element: element[axis])
+            median_idx = len(objects) // 2
+            median_point= objects[median_idx][0:-1]
+            median_label = objects[median_idx][-1]
+            next_axis = (axis + 1) % k
+            return Node(median_point, axis, median_label,
+                        build_tree(objects[:median_idx], next_axis),
+                        build_tree(objects[median_idx + 1:], next_axis))
+
+        self.root = build_tree(list(objects))
+```  
+
+
 
 La condición de parada se cumple cuando la cantidad de elementos en la hoja es menor o igual al valor máximo establecido.
 
@@ -413,7 +457,11 @@ No hay una diferencia considerable entre la precisión de las predicciones de se
 
 Para las pruebas con la porción del dataset considerada "datos nuevos", 20% de la muestra original, la precisión bajó con respecto a las pruebas realizadas mediante cross validation al dataset de entrenamiento. En promedio, el error aumentó entre 5% y 10% para las predicciones de todas las rondas.
 
-En síntesis, se esperaba una baja precisión, pero no tan baja. Se probó con diferentes valores para K y para el tamaño de las hojas, sin diferencias considerables
+En síntesis, se esperaba una baja precisión, pero no tan baja.
+Se probó con diferentes valores para K y para el tamaño de las hojas, sin diferencias notables.
+
+```
+```
 
 SVM
 ------
@@ -422,9 +470,37 @@ SVM
 
 Para implementar el SVM se escogio un modelo lineal.
 
+Primero se divide el dataset:
+```python
+x_train, x_test, y_train, y_test = non_shuffling_train_test_split(X1, Y1, test_percentage/100)
+```
+
+Luego se crea el modelo utillizando `sklearn.svm`
+```python
+model = LinearSVC()
+model.fit(x_train, y_train.ravel())
+```
+
+Para predecir se utiliza:
+```python
+predictions = model.predict(x_train)
+```
+
 **Análisis de resultados**
 
-
+Resultado de una corrida:
+```
+SVM
+   - Error de entrenamiento:  0.551088777219
+   - Error de pruebas:  0.482873851295
+```
+El resultado de otra corrida:
+```
+SVM
+   - Error de entrenamiento:  0.529313232831
+   - Error de pruebas:  0.452798663325
+```
+Los resultados evidencian que el modelo de SVM anda entre un 44-49% de potencia en el entrenamiento y 51-55% en las pruebas.
 
 Apéndice
 ======
@@ -459,6 +535,12 @@ keras
 
 ```bash
 python -m pip install keras
+```
+
+pptree
+
+```bash
+python -m pip install pptree
 ```
 
   
