@@ -357,6 +357,7 @@ RED_NEURONAL
    - Error de entrenamiento:  39.904522613065325
    - Error de pruebas:  48.8156388067
 ```
+Pese a ser la misma cantidad de capas y de unidades por cada una, es observable una diferencia importante en la potencia, de acuerdo a la funcion de activacion que utilicen.
 
 Árboles de decisión
 ------
@@ -380,7 +381,7 @@ DECISION_TREE
    - Error de entrenamiento:  0.7361809045226131
    - Error de pruebas:  0.8816666666666667
 ```
-
+Es importante ver como entre mas umbral de poda mas baja la potencia del entrenamiento y suba la potencia de las pruebas.
 
 Árboles K-D y KNN
 ------
@@ -447,13 +448,13 @@ La búsqueda de los N vecinos se implementó de manera recursiva
 
 Para realizar Cross Validation (K-Fold) se toma el set de datos completo, se le separa el porcentaje reservado para pruebas (por defecto un 20%) y al restante (80%) se le separa en una cantidad de partes predeterminada (10 por defecto). Cada una de esas partes actúa como set de prueba mientras las demás actúan como set de entrenamiento. Posteriormente se selecciona el árbol que obtuvo las mejores predicciones y se realizan las pruebas finales.
 
-Para la salida del modelo, se retornan listas de forma: 
-|  Predicción 1ra ronda  | Predicción 2da ronda con | Predicción 2da ronda sin|  |
-| -- || -- |
-|  
-|  |  | |
- 
-  
+Para la salida del modelo, se retorna un diccionario con: 
+|  Predicción 1ra ronda  | Predicción 2da ronda sin 1ra | Predicción 2da ronda con 1ra | Es entrenamiento | Error de entrenamiento | Error de pruebas
+| -- | -- | -- | -- |  -- | -- |
+| Voto  | Voto | Voto | True/False | Valor | Valor
+| Voto  | Voto | Voto | True/False |
+| ..  | .. | .. | .. | 
+Este diccionario contiene todo lo necesario para construir el archivo CSV requerido para el proyecto.
 
 **Análisis de resultados**
 
@@ -464,7 +465,7 @@ Con los árboles generados mediante cross validation, los mejores árboles obtuv
 
 No hay una diferencia considerable entre la precisión de las predicciones de segunda ronda con y sin votos de primera ronda. Se intentó modificar el orden de los indicadores poblacionales para buscar una mejoría en la precisión sin éxito. Se especula que esta situación se deba a la naturaleza de los datos, o al formato de los mismos al ser ingresados a la generación del árbol. 
 
-Para las pruebas con la porción del dataset considerada "datos nuevos", 20% de la muestra original, la precisión bajó con respecto a las pruebas realizadas mediante cross validation al dataset de entrenamiento. En promedio, el error aumentó entre 5% y 10% para las predicciones de todas las rondas.
+Para las pruebas con la porción del dataset considerada "datos nuevos", 20% de la muestra original, la precisión bajó con respecto a las pruebas realizadas mediante cross validation al dataset de entrenamiento. En promedio, el error aumentó entre 5% y 15% para las predicciones de todas las rondas.
 
 En síntesis, se esperaba una baja precisión, pero no tan baja.
 Se probó con diferentes valores para K y para el tamaño de las hojas, sin diferencias notables.
@@ -483,6 +484,7 @@ KNN
    - Error de entrenamiento:  0.647141261864879965242881072027
    - Error de pruebas:  0.69733333333333333
 ```
+El comportamiento muestra resultados diferentes dependiendo del valor de k. Siendo k 6 se obtuvo mas error de entrenamiento que siendo k 4. De manera opuesta, con k = 6 el error de pruebas fue menor que con k = 4.
 
 SVM
 ------
