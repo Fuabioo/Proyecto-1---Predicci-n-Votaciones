@@ -29,7 +29,9 @@ Contenidos
   > Dataset
   > Modelos lineales
   > Redes neuronales
-  > Arboles K-D y KNN
+  > Árboles de decision
+  > Árboles K-D y KNN
+  > SVM
 - Apéndice
   > Instalación
   > Uso
@@ -256,12 +258,25 @@ cost = tf.reduce_mean(tf.nn.sigmoid_cross_entropy_with_logits(logits = Z, labels
 
 **Análisis de resultados**
 
+ Resultado con L1
+```
+Regresion con l1 True , l2 False
+REGRESION_LOGISTICA
+   - Error de entrenamiento:  47.21666666666667
+   - Error de pruebas:  0.149284680684
+```
+ Resultado con L2
+```
+Regresion con l1 False , l2 True
+REGRESION_LOGISTICA
+   - Error de entrenamiento:  57.666666666666664
+   - Error de pruebas:  0.149284680684
+```
+  Como se puede apreciar, la potencia del modelo con L1 es de 53% para el entrenamiento y 86% para las pruebas. De igual manera con L2 el entrenamiento tuvo 43% de potencia y las pruebas 86%.
   
 
 Redes neuronales
 ------
-
-  
 
 **Implementación**
 
@@ -315,16 +330,39 @@ kfold = KFold(n_splits=10, shuffle=True, random_state=seed)
 results = cross_val_score(estimator, X, dummy_y, cv=kfold)
 ```
 
-  
+**Análisis de resultados**
+
+Inicialmente se daban casos en los que se predecian para la segunda ronda resultados con partidos politicos que no correspondian, por lo que se determino que algo malo sucedia con el modelo. Luego de algunos arreglos se logro que se prediga bien.
+ 
+Con funcion de activacion `'sigmoid'`
+```
+Red neuronal con 1 capas, 60 unidades por capa y  como funcion de activacion
+RED_NEURONAL
+   - Error de entrenamiento:  48.19597989949748
+   - Error de pruebas:  51.0833333333
+``` 
+Con funcion de activacion `'relu'`
+```
+Red neuronal con 1 capas, 60 unidades por capa y relu como funcion de activacion
+RED_NEURONAL
+   - Error de entrenamiento:  41.19430485762144
+   - Error de pruebas:  50.6675881112
+```
+Con funcion de activacion `'softmax'`
+```
+Red neuronal con 1 capas, 60 unidades por capa y softmax como funcion de activacion
+RED_NEURONAL
+   - Error de entrenamiento:  39.904522613065325
+   - Error de pruebas:  48.8156388067
+```
+
+Árboles de decisión
+------
+
+**Implementación**
 
 **Análisis de resultados**
 
-  
-
-Una precisión de entre 86% - 91%
-
-  
-  
 
 Árboles K-D y KNN
 ------
@@ -366,11 +404,27 @@ La búsqueda de los N vecinos se implementó de manera recursiva
 
 **Análisis de resultados**
 
-  
+Con los árboles generados mediante cross validation, los mejores árboles obtuvieron:
+- Precisión baja de alrededor de 19% - 24% para las predicciones de primera ronda.
+- Precisión de alrededor de 55% - 60% para las predicciones de segunda ronda sin tomar en cuenta los votos de la primera ronda. 
+- Precisión de alrededor de 55% - 60% para las predicciones de segunda ronda tomando en cuenta los votos de primera ronda
 
-Una precisión baja de alrededor de 19% - 24%
+No hay una diferencia considerable entre la precisión de las predicciones de segunda ronda con y sin votos de primera ronda. Se intentó modificar el orden de los indicadores poblacionales para buscar una mejoría en la precisión sin éxito. Se especula que esta situación se deba a la naturaleza de los datos, o al formato de los mismos al ser ingresados a la generación del árbol. 
 
-Se esperaba baja, pero no tanto. Se probó con diferentes valores para K y para el tamaño de las hojas, sin diferencias considerables
+Para las pruebas con la porción del dataset considerada "datos nuevos", 20% de la muestra original, la precisión bajó con respecto a las pruebas realizadas mediante cross validation al dataset de entrenamiento. En promedio, el error aumentó entre 5% y 10% para las predicciones de todas las rondas.
+
+En síntesis, se esperaba una baja precisión, pero no tan baja. Se probó con diferentes valores para K y para el tamaño de las hojas, sin diferencias considerables
+
+SVM
+------
+
+**Implementación**
+
+Para implementar el SVM se escogio un modelo lineal.
+
+**Análisis de resultados**
+
+
 
 Apéndice
 ======
