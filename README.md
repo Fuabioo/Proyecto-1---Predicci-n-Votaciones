@@ -7,6 +7,8 @@ Ingeniería en Computación
 
 IC6200 - Inteligencia Artificial
 
+I Semestre,  2018
+
 Grupo #8
 ------
 
@@ -443,7 +445,14 @@ La condición de parada se cumple cuando la cantidad de elementos en la hoja es 
 
 La búsqueda de los N vecinos se implementó de manera recursiva
 
-  
+Para realizar Cross Validation (K-Fold) se toma el set de datos completo, se le separa el porcentaje reservado para pruebas (por defecto un 20%) y al restante (80%) se le separa en una cantidad de partes predeterminada (10 por defecto). Cada una de esas partes actúa como set de prueba mientras las demás actúan como set de entrenamiento. Posteriormente se selecciona el árbol que obtuvo las mejores predicciones y se realizan las pruebas finales.
+
+Para la salida del modelo, se retornan listas de forma: 
+|  Predicción 1ra ronda  | Predicción 2da ronda con | Predicción 2da ronda sin|  |
+| -- || -- |
+|  
+|  |  | |
+ 
   
 
 **Análisis de resultados**
@@ -460,7 +469,19 @@ Para las pruebas con la porción del dataset considerada "datos nuevos", 20% de 
 En síntesis, se esperaba una baja precisión, pero no tan baja.
 Se probó con diferentes valores para K y para el tamaño de las hojas, sin diferencias notables.
 
+Corrida con 6 como valor de k.
 ```
+KNN con k =  6
+KNN
+   - Error de entrenamiento:  0.71
+   - Error de pruebas:  0.633333333333334
+```
+Corrida con 4 como valor de k.
+```
+KNN con k =  4
+KNN
+   - Error de entrenamiento:  0.647141261864879965242881072027
+   - Error de pruebas:  0.69733333333333333
 ```
 
 SVM
@@ -579,7 +600,7 @@ Considerando que un archivo python `ejemplo.py` tenga la estructura anterior y q
 ```bash
 python ejemplo.py --poblacion 1003 --porcentaje-pruebas 20 --red-neuronal --unidades-por-capa 60
 ```
-Lo que nos va a generar un archivo llamado `red_neuronal_output.csv`
+Lo que nos va a generar un archivo llamado `red_neuronal_output.csv` y una salida en la consola como la siguiente:
 ```bash
 RED_NEURONAL
     - Error de entrenamiento: 0.4582124
