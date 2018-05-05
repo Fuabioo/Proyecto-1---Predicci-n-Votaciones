@@ -22,7 +22,7 @@ Contenidos
 ------
 
 - Proyecto Corto 1 - Simulador Votos (pc1)
-  > Descripcion
+  > Descripción
   > Implementacion
   > Pruebas
   > Argumentos
@@ -31,7 +31,7 @@ Contenidos
   > Dataset
   > Modelos lineales
   > Redes neuronales
-  > Árboles de decision
+  > Árboles de decisión
   > Árboles K-D y KNN
   > SVM
 - Apéndice
@@ -63,7 +63,7 @@ Implementación
 ------
 Para la implementación se creó un archivo .py que almacena los datos en formato csv para las actas y los indicadores por default. Igual son parametrizables pero cuando se cargan por default se utilizan estos archivos.
 
-Primero se leen los parametros con argparse
+Primero se leen los parámetros con argparse
 
 ```python
 def parse_args():
@@ -94,7 +94,7 @@ def load_data():
     elif args.actas[0] == 'default' and args.indicadores[0] != 'default':
         indicadores.INDICADORES = open(args.indicadores[0], 'r')
 ```
-Luego se formatea el csv a matriz de python de manera trivial. Para la función `generar_muestra_pais` lo que se hace es que se llama a la función `generar_muestra_provincia` para todas las provincias. Esta ultima función se trabaja de la siguiente manera:
+Luego se formatea el csv a matriz de python de manera trivial. Para la función `generar_muestra_pais` lo que se hace es que se llama a la función `generar_muestra_provincia` para todas las provincias. Esta última función se trabaja de la siguiente manera:
 
  1. Se leen los archivos
 ```python
@@ -148,7 +148,7 @@ Para el proyecto de simulación de votos están los siguientes archivos:
 
   
 
-![Ejemplo de grafico: Distribución para una muestra de 1000 de Alajuela](test/pc1/graficos/Alajuela-1000.png)
+![Ejemplo de gráfico: Distribución para una muestra de 1000 de Alajuela](test/pc1/graficos/Alajuela-1000.png)
 
   
 
@@ -157,7 +157,7 @@ Argumentos
 
 **Simulador de votos**
 
-| Parametro | Descripción | Obligatorio |
+| Parámetro | Descripción | Obligatorio |
 | -- | -- | -- |
 | --indicadores | <archivo.csv> | No |
 | --actas | <archivo.csv> | No |
@@ -168,7 +168,7 @@ Argumentos
 | -- | -- | -- | -- |
 | --provincia | nombre en mayuscula | No | 'PAIS' |
 | --poblacion | cantidad de votantes | Si | N/A |
-| --porcentaje-pruebas | define el tamano del set de pruebas | Si | N/A |
+| --porcentaje-pruebas | define el tamaño del set de pruebas | Si | N/A |
 | |
 | --regresion-logistica | flag | No | N/A |
 | --l1 | cantidad de unidades por capa | No | N/A |
@@ -200,12 +200,12 @@ La salida generada, en el caso de muestra de país, tendrá la siguiente forma, 
 
   
 
-| Provincia | ... | Canton | Voto 1ra ronda | Voto 2da ronda |
+| Provincia | ... | Cantón | Voto 1ra ronda | Voto 2da ronda |
 | -- | -- | -- | -- | -- |
-| Grecia | ... | Alajuela | Unidad Social Cristiana | Partido Accion Ciudadana |
-| Vazquez de Coronado | ...| San Jose | Voto blanco | Restauracion Nacional |
-| Paraiso | ... | Cartago | Liberacion Nacional | Voto blanco |
-| San Rafael | ... | Heredia | Partido Accion Ciudadana | Partido Accion Ciudadana |
+| Grecia | ... | Alajuela | Unidad Social Cristiana | Partido Acción Ciudadana |
+| Vazquez de Coronado | ...| San José | Voto blanco | Restauracion Nacional |
+| Paraiso | ... | Cartago | Liberación Nacional | Voto blanco |
+| San Rafael | ... | Heredia | Partido Acción Ciudadana | Partido Accion Ciudadana |
 
   
 
@@ -225,7 +225,7 @@ Se utiliza el simulador de votos para generar el dataset que se utilizara en la 
 
   
 
-Este proyecto cuenta con la funcion shaped_data_no_bin que devuelve el dataset formateado para funcionar con el voto siendo un string que contiene el nombre del partido, además también cuenta con otra funcion llamada shaped_data que funciona con el voto siendo una lista conteniendo un valor para todos los partidos, siendo este 1 para el partido por el cual se votó y 0 para el resto.
+Este proyecto cuenta con la función shaped_data_no_bin que devuelve el dataset formateado para funcionar con el voto siendo un string que contiene el nombre del partido, además también cuenta con otra función llamada shaped_data que funciona con el voto siendo una lista conteniendo un valor para todos los partidos, siendo este 1 para el partido por el cual se votó y 0 para el resto.
 
   
 
@@ -244,7 +244,7 @@ Se utilizó de backend Tensorflow con Keras (API de python que corre sobre tenso
 
   
 
-De la librería sklearn se utilizó de preprocesamiento OneHotEncoder para entrenar el modelo. Luego la funcion sigmoid para la predicción y finalmente se le calculan los costos en relación a la entropía.
+De la librería sklearn se utilizó de preprocesamiento OneHotEncoder para entrenar el modelo. Luego la función sigmoid para la predicción y finalmente se le calculan los costos en relación a la entropía.
 
   
 
@@ -288,8 +288,8 @@ Para implementar las redes neuronales se aceptan los siguientes parámetros:
 
 | Parametro | Valor valido |
 | --- | --- |
-| numero-capas | entero mayor a 0 |
-| unidades-por-capa | numero mayor a 0 |
+| número-capas | entero mayor a 0 |
+| unidades-por-capa | número mayor a 0 |
 | funcion-activacion | relu/sigmoid/softmax |
 
   
@@ -334,7 +334,7 @@ results = cross_val_score(estimator, X, dummy_y, cv=kfold)
 
 **Análisis de resultados**
 
-Inicialmente se daban casos en los que se predecian para la segunda ronda resultados con partidos politicos que no correspondian, por lo que se determino que algo malo sucedia con el modelo. Luego de algunos arreglos se logro que se prediga bien.
+Inicialmente se daban casos en los que se predecían para la segunda ronda resultados con partidos políticos que no correspondian, por lo que se determinó que algo malo sucedía con el modelo. Luego de algunos arreglos se logró que se prediga bien.
  
 Con funcion de activacion `'sigmoid'`
 ```
@@ -350,7 +350,7 @@ RED_NEURONAL
    - Error de entrenamiento:  41.19430485762144
    - Error de pruebas:  50.6675881112
 ```
-Con funcion de activacion `'softmax'`
+Con función de activación `'softmax'`
 ```
 Red neuronal con 1 capas, 60 unidades por capa y softmax como funcion de activacion
 RED_NEURONAL
@@ -364,7 +364,11 @@ Pese a ser la misma cantidad de capas y de unidades por cada una, es observable 
 
 **Implementación**
 
-Para crear el árbol de decisión se selecciona el mejor de los atributos que clasifique mejor los datos tomando en cuenta la ganancia de cada uno, una vez obtenido se procede con la creación:
+
+Primero se creó una estructura básica de árbol, la cual cuenta con el padre, el criterio (por el cual se creó este sub-árbol), el valor y una lista con los múltiples hijos que pueda tener el árbol o sub-árbol.
+
+Posteriormente el algoritmo utilizando ganancia (a base de entropía) selecciona el mejor atributo y lo devuelve junto con un diccionario que contiene la cantidad de personas que votaron para cada partido a partir de ese punto del árbol. Y este proceso se repite recursivamente hasta que se completa el árbol o bien la ganancia es menor al margen de poda de el árbol, luego de esto se retorna el mismo: 
+
 ```python
 tree = Tree(names[best[0]],val,best[1],head)
 ```
@@ -376,7 +380,7 @@ subtree = create_decision_tree(
     target_attr,
     fitness_func,names ,tree, val)
 ```
-Para obtener la entropia:
+Para obtener la entropía:
 ```python
 def entropy(data, target_attr):
     val_freq = {}
@@ -399,26 +403,26 @@ def predict(tree,element):
     percents = numpy.array(list(tree.percents.values()),dtype = float)/ sum(list(tree.percents.values()))
     return list(tree.percents.keys())[chooser(percents)]
 ```
-Por ultimo se hace el cross-validation obteniendo tres predicciones y luego obteniendo el mejor arbol.
+Y para concluir cuando se inicia el proceso de entrenamiento se utiliza K-Fold Cross Validation para escoger el mejor de k modelos y este se revisa con un holdout guarda al inicio de la ejecución del algoritmo
 
 **Análisis de resultados**
 
 
 Corrida con umbral de poda default (10%)
 ```
-Arbol con umbral de poda 0.1
+Árbol con umbral de poda 0.1
 DECISION_TREE
    - Error de entrenamiento:  0.585427135678392
    - Error de pruebas:  0.9583333333333334
 ```
 Corrida con umbral de poda al 80%
 ```
-Arbol con umbral de poda 0.8
+Árbol con umbral de poda 0.8
 DECISION_TREE
    - Error de entrenamiento:  0.7361809045226131
    - Error de pruebas:  0.8816666666666667
 ```
-Es importante ver como entre mas umbral de poda mas baja la potencia del entrenamiento y suba la potencia de las pruebas.
+Es importante ver cómo entre mas umbral de poda más baja la potencia del entrenamiento y suba la potencia de las pruebas.
 
 Árboles K-D y KNN
 ------
@@ -439,7 +443,7 @@ Las modificaciones realizadas a dicho código son:
 
 - Datos de entrada, adaptados a los datos de prueba generados en el PC1
 - Forma general, procesamiento correcto de los datos de entrada en el nuevo formato compatible con el generador de poblaciones
-- Cálculo del SqrtError, adaptado para ignorar el voto, tomando en cuenta sólo los indicadores (Sin embargo, el voto de primera ronda es considerado un indicador cuand así se requiere )
+- Cálculo del SqrtError, adaptado para ignorar el voto, tomando en cuenta sólo los indicadores (Sin embargo, el voto de primera ronda es considerado un indicador cuando así se requiere )
 - Procesamiento de listas con vecinos cercanos
 - Valores de retorno conformes con lo necesario para la obtención de información de salida
 
@@ -450,7 +454,7 @@ Para los árboles K-D se utilizó una implementación de clases. La clase KDTree
 La estructura Node es la que contiene el formato utilizado para la creación de nodos del árbol. 
 Contiene 
 - point: Punto medio (mediana) del eje que separa a los hijos izquierdo y derecho del nodo
-- axis: El eje que funciona como critero de comparación para agregar nodos
+- axis: El eje que funciona como criterio de comparación para agregar nodos
 - label: La etiqueta asignada al nodo
 - left: El hijo izquierdo
 - right: El hijo derecho
@@ -513,21 +517,21 @@ KNN
    - Error de entrenamiento:  0.647141261864879965242881072027
    - Error de pruebas:  0.69733333333333333
 ```
-El comportamiento muestra resultados diferentes dependiendo del valor de k. Siendo k 6 se obtuvo mas error de entrenamiento que siendo k 4. De manera opuesta, con k = 6 el error de pruebas fue menor que con k = 4.
+El comportamiento muestra resultados diferentes dependiendo del valor de k. Siendo k 6 se obtuvo más error de entrenamiento que siendo k 4. De manera opuesta, con k = 6 el error de pruebas fue menor que con k = 4.
 
 SVM
 ------
 
 **Implementación**
 
-Para implementar el SVM se escogio un modelo lineal.
+Para implementar el SVM se escogió un modelo lineal.
 
 Primero se divide el dataset:
 ```python
 x_train, x_test, y_train, y_test = non_shuffling_train_test_split(X1, Y1, test_percentage/100)
 ```
 
-Luego se crea el modelo utillizando `sklearn.svm`
+Luego se crea el modelo utilizando `sklearn.svm`
 ```python
 model = LinearSVC()
 model.fit(x_train, y_train.ravel())
@@ -607,14 +611,14 @@ python -m pip install pptree
 
   
 
-**Modulo (Opcion #1):**
+**Modulo (Opción #1):**
 
 ```bash
 python setup.py sdist
 python -m pip install dist/tec-2.X.tar.gz
 ```
 
-**Modulo (Opcion #2):**
+**Modulo (Opción #2):**
 
 ```bash
 python setup.py install
@@ -629,14 +633,14 @@ Para ejecutar el predictor de votaciones se debe utilizar la siguiente estructur
 ```python
 # importar el modulo
 from tec.ic.ia.p1 import g08
-# obtener la prediccion
+# obtener la predicción
 g08.run_prediction()
 ```
 Al terminar la ejecución el programa procederá a generar un archivo csv con el resultado en el directorio actual donde se ejecutó el programa. Además se muestra en la consola el nivel de precisión de la predicción.
 
 **Ejemplo**
 
-Considerando que un archivo python `ejemplo.py` tenga la estructura anterior y que lo que queremos es obtener la prediccion utilizando un modelo de red neuronal, lo llamamos de la siguiente manera:
+Considerando que un archivo python `ejemplo.py` tenga la estructura anterior y que lo que queremos es obtener la predicción utilizando un modelo de red neuronal, lo llamamos de la siguiente manera:
 
 ```bash
 python ejemplo.py --poblacion 1003 --porcentaje-pruebas 20 --red-neuronal --unidades-por-capa 60
@@ -647,3 +651,5 @@ RED_NEURONAL
     - Error de entrenamiento: 0.4582124
     - Error de pruebas: 0.4012345
 ```
+
+
