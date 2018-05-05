@@ -12,6 +12,7 @@ src/tec/ic/ia/p1/g08_print.py
 src/tec/ic/ia/p1/g08_redes_neuronales - copia.py
 src/tec/ic/ia/p1/g08_redes_neuronales.py
 src/tec/ic/ia/p1/g08_regresion.py
+src/tec/ic/ia/p1/g08_svm.py
 src/tec/ic/ia/pc1/__init__.py
 src/tec/ic/ia/pc1/actas.py
 src/tec/ic/ia/pc1/g08.py

@@ -7,8 +7,9 @@ from argparse import ArgumentParser
 
 from tec.ic.ia.p1 import g08_redes_neuronales
 from tec.ic.ia.p1 import g08_kdtrees
-#from tec.ic.ia.p1 import g08_desicion_tree
+from tec.ic.ia.p1 import g08_desicion_tree
 from tec.ic.ia.p1 import g08_regresion
+from tec.ic.ia.p1 import g08_svm
 from tec.ic.ia.pc1 import g08
 
 def get_args():
@@ -84,7 +85,8 @@ def arbol(args, dataset):
     Ejecucion del arbol de decision
     """
     print("Arbol con umbral de poda", args.umbral_poda)
-
+    result = g08_desicion_tree.cross_validate(dataset=dataset, percent=args.porcentaje_pruebas, error_margin=args.umbral_poda)
+    get_output(dataset, result, "DECISION_TREE")
 
 def knn(args, dataset):
     """
@@ -94,15 +96,7 @@ def knn(args, dataset):
         print("ValueError: k")
     else:
         print("KNN con k = ", args.k)
-        # g08_kdtrees.main(dataQuant = args.poblacion, k = args.k)
         result = g08_kdtrees.cross_validate(dataset=numpy.array(dataset), percent=args.porcentaje_pruebas, k=args.k)
-        # result = {
-        #     "res_1":["PAC", "PUSC", "RN", "PAC", "LN"],
-        #     "res_2":["PAC", "PAC", "RN", "PAC", "RN"],
-        #     "res_3":["PAC", "PAC", "PAC", "PAC", "RN"],
-        #     "train_set":[True, False, False, False, True],
-        #     "err_train": 0.9,
-        #     "err_test": 0.4}
         get_output(dataset, result, "KNN")
 
 
@@ -111,6 +105,10 @@ def svm(args, dataset):
     Ejecucion de la svm
     """
     print("SVM = ", args.svm)
+    result = g08_svm.execute_model(
+            dataset,
+            args.porcentaje_pruebas)
+    get_output(dataset, result, "SVM")
 
 def gen_dataset(n, provincia, sample_type=1):
     """
