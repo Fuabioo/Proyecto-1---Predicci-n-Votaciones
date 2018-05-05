@@ -364,6 +364,43 @@ Pese a ser la misma cantidad de capas y de unidades por cada una, es observable 
 
 **Implementación**
 
+Para crear el árbol de decisión se selecciona el mejor de los atributos que clasifique mejor los datos tomando en cuenta la ganancia de cada uno, una vez obtenido se procede con la creación:
+```python
+tree = Tree(names[best[0]],val,best[1],head)
+```
+Luego recursivamente se van creando los hijos:
+```python
+subtree = create_decision_tree(
+    get_examples(data, best[0], val),
+    [attr for attr in attributes if attr != best[0]],
+    target_attr,
+    fitness_func,names ,tree, val)
+```
+Para obtener la entropia:
+```python
+def entropy(data, target_attr):
+    val_freq = {}
+    data_entropy = 0.0
+    for record in data:
+        if ((record[target_attr]) in val_freq):
+            val_freq[record[target_attr]] += 1.0
+        else:
+            val_freq[record[target_attr]] = 1.0
+    for freq in val_freq.values():
+        data_entropy += (-freq/len(data)) * math.log(freq/len(data), 2)
+    return data_entropy,val_freq
+```
+Para predecir:
+```python
+def predict(tree,element):
+    for child in tree.children:
+        if child.value == element[ names.index(tree.name) ]:
+            return predict(child,element)
+    percents = numpy.array(list(tree.percents.values()),dtype = float)/ sum(list(tree.percents.values()))
+    return list(tree.percents.keys())[chooser(percents)]
+```
+Por ultimo se hace el cross-validation obteniendo tres predicciones y luego obteniendo el mejor arbol.
+
 **Análisis de resultados**
 
 
@@ -448,14 +485,6 @@ La búsqueda de los N vecinos se implementó de manera recursiva
 
 Para realizar Cross Validation (K-Fold) se toma el set de datos completo, se le separa el porcentaje reservado para pruebas (por defecto un 20%) y al restante (80%) se le separa en una cantidad de partes predeterminada (10 por defecto). Cada una de esas partes actúa como set de prueba mientras las demás actúan como set de entrenamiento. Posteriormente se selecciona el árbol que obtuvo las mejores predicciones y se realizan las pruebas finales.
 
-Para la salida del modelo, se retorna un diccionario con: 
-|  Predicción 1ra ronda  | Predicción 2da ronda sin 1ra | Predicción 2da ronda con 1ra | Es entrenamiento | Error de entrenamiento | Error de pruebas
-| -- | -- | -- | -- |  -- | -- |
-| Voto  | Voto | Voto | True/False | Valor | Valor
-| Voto  | Voto | Voto | True/False |
-| ..  | .. | .. | .. | 
-Este diccionario contiene todo lo necesario para construir el archivo CSV requerido para el proyecto.
-
 **Análisis de resultados**
 
 Con los árboles generados mediante cross validation, los mejores árboles obtuvieron:
@@ -524,6 +553,16 @@ SVM
    - Error de pruebas:  0.452798663325
 ```
 Los resultados evidencian que el modelo de SVM anda entre un 44-49% de potencia en el entrenamiento y 51-55% en las pruebas.
+
+Salida de los modelos
+-----
+Para la salida de cada modelo, se retorna un diccionario con: 
+|  Predicción 1ra ronda  | Predicción 2da ronda sin 1ra | Predicción 2da ronda con 1ra | Es entrenamiento | Error de entrenamiento | Error de pruebas
+| -- | -- | -- | -- |  -- | -- |
+| Voto  | Voto | Voto | True/False | Valor | Valor
+| Voto  | Voto | Voto | True/False |
+| ..  | .. | .. | .. | 
+Este diccionario contiene todo lo necesario para construir el archivo CSV requerido para el proyecto.
 
 Apéndice
 ======
